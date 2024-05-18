@@ -1,0 +1,23 @@
+{
+  "name": "modulo-bases-1",
+  "version": "1.0.0",
+  "description": "Modulo final de bases de datos 1 2024 - 1",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Code0blivion/MODULO-BD1.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Code0blivion/MODULO-BD1/issues"
+  },
+  "homepage": "https://github.com/Code0blivion/MODULO-BD1#readme",
+  "dependencies": {
+    "express": "^4.19.2",
+    "nodemon": "^3.1.0"
+  }
+}
