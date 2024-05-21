@@ -1,0 +1,11 @@
+p {
+  margin: 0;
+}
+
+.btn-block-custom {
+  display: block;
+  width: 100%;
+  max-width: 800px; /* Puedes ajustar esto según prefieras */
+  margin: auto; /* Centra los botones horizontalmente */
+  padding: 1rem;
+}

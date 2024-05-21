@@ -1,0 +1,25 @@
+main {
+  font-size: 1.1rem; /* Aumenta el tamaño del texto */
+}
+
+#profileSelect {
+  padding: 0.5rem 0.75rem; /* Aumenta el padding del select */
+  border-radius: 0.25rem;
+  border: 1px solid #ced4da;
+  font-size: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem; /* Aumenta el espacio entre los elementos del formulario */
+}
+
+.btn-column {
+  margin-top: 5rem; /* Aumenta el margen superior de la columna de botones */
+}
+
+.btn-block-custom {
+  display: block;
+  width: 100%;
+  max-width: 600px; /* Puedes ajustar esto según prefieras */
+  margin: 0 auto; /* Centra los botones horizontalmente */
+}
