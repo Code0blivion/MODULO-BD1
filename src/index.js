@@ -22,6 +22,10 @@ app.get("/req", (req, res) => {
   );
 });
 
+app.get("/opcionados", (req, res) => {
+  res.sendFile(path.join(__dirname, "/static/templates/lista_opcionados.html"));
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

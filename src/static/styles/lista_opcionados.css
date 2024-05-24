@@ -1,0 +1,51 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+header {
+  padding: 1rem;
+}
+
+header h1,
+header p {
+  margin: 0;
+}
+
+main {
+  font-size: 1.1rem;
+  width: 100%; /* Ocupa todo el ancho del body */
+  padding: 15px; /* Padding alrededor del main */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.accordion-container {
+  width: 60%; /* Ancho del contenedor de los acordeones */
+}
+
+.accordion-item {
+  margin-bottom: 5vh; /* Espacio entre cada acordeón */
+  border: 2px solid #e9ecef; /* Bordes más gruesos */
+}
+
+.accordion-button {
+  border: 2px solid transparent; /* Mantener consistencia con los bordes */
+  border-bottom: none; /* Evitar doble borde entre elementos */
+}
+
+.accordion-button:not(.collapsed) {
+  border-bottom: 2px solid #e9ecef; /* Bordes más gruesos */
+}
+
+.accordion-body {
+  padding: 1rem;
+}
+
+button#logoutButton {
+  margin-bottom: 20px; /* Espacio debajo del botón de logout */
+}
