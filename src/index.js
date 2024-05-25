@@ -41,6 +41,12 @@ app.get("/req/:id", (req, res) => {
   );
 });
 
+app.get("/req2", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "/static/templates/detalle_requerimiento2.html")
+  );
+});
+
 app.get("/api/req/:id", async (req, res) => {
   const reqID = Number(req.params.id);
   const conexion = await getConexion();
