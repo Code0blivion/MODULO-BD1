@@ -1,13 +1,21 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
+const {
+  configuraciónLibreria,
+  getConexion,
+  consultar,
+  createRecord,
+} = require("./static/scripts/database");
 
 const app = express();
 
 app.use(express.static(path.join(__dirname, "static")));
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "/static/templates/index.html"));
+configuraciónLibreria();
+
+app.get("/", async (req, res) => {
+  const conexion = await getConexion();
 });
 
 app.get("/lista_requerimientos", (req, res) => {

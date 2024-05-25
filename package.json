@@ -18,6 +18,7 @@
   "homepage": "https://github.com/Code0blivion/MODULO-BD1#readme",
   "dependencies": {
     "express": "^4.19.2",
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.0",
+    "oracledb": "^6.5.1"
   }
 }
