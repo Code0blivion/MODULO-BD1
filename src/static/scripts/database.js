@@ -67,7 +67,7 @@ async function consultarRequerimiento(con, id) {
 async function consultarFase(con, id) {
   try {
     const result = await con.execute(
-      `SELECT f.idFase, f.desFase
+      `SELECT f.idFase, f.desFase, pr.fechaInicio
        FROM ProcesoRequerimiento pr
        JOIN PerfilFase pf on pf.idFasePerfilFase = pr.idFasePerfilFase and
        pf.idPerfilPerfilFase = pr.idPerfilProcCan JOIN Fase f on 
@@ -199,7 +199,7 @@ async function inicializarFase(
     );
 
     rows = result.rows;
-    let lastID = 0;
+    let lastID = 1;
     if (rows.length > 0) {
       console.log(rows[rows.length - 1]);
       lastID = Number(rows[rows.length - 1]) + 1;
@@ -260,6 +260,58 @@ async function inicializarFase(
   }
 }
 
+async function updateConvocatoria(
+  conexion,
+  reqID,
+  textoConvocatoria,
+  currentDate
+) {
+  try {
+    let result = await conexion.execute(
+      `UPDATE PROCESOREQUERIMIENTO
+       SET CONVOCATORIA = :textoConvocatoria,
+       fechaFin = TO_TIMESTAMP(:currentDate, 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"')
+       WHERE CONSECREQUEPROCREQUE = :reqID AND
+       IDFASEPERFILFASE = '0003'
+       `,
+      { textoConvocatoria, reqID, currentDate }
+    );
+    console.log(result);
+    await conexion.commit();
+  } catch (err) {
+    console.error("Error reading records:", err);
+    if (conexion) {
+      await conexion.rollback();
+    }
+    throw err; // Lanzar el error para manejarlo en la llamada a esta función
+  }
+}
+
+async function getInvitados(conexion, reqID) {
+  try {
+    let result = await conexion.execute(
+      `SELECT C.USUARIO, C.NOMBRE, C.APELLIDO, C.FECHANACCAN,
+      C.NDOC, T.DESCTIPODOC, H.DESCACTIVIDAD, H.FUNCIONACTIVIDAD,
+      TI.DESCTIPOITEMPERFIL, INT.NOMINSTITUCION, D.DESCDISCIPLINA FROM 
+      CANDIDATO C JOIN DISCIPLINA D ON C.IDDISCIPLINACAN = D.IDDISCIPLINA
+      JOIN HV H ON H.USUARIOHV = C.USUARIO JOIN INSTITUCION INT ON
+      H.CODINSTITUCIONHV = INT.CODINSTITUCION 
+      JOIN TIPODOC T ON T.IDTIPODOC = C.IDTIPODOCCAN JOIN TIPOITEMPERFIL TI ON
+      H.IDTIPOITEMPERFILHV = TI.IDTIPOITEMPERFIL JOIN PROCESOREQUERIMIENTO PR ON
+      PR.CONSECREQUEPROCREQUE = :reqID AND IDFASEPERFILFASE = '0004' JOIN PERFILFASE PF
+      ON PR.IDFASEPERFILFASE = PF.IDFASEPERFILFASE AND PR.IDPERFILPROCCAN = PF.IDPERFILPERFILFASE
+      JOIN PERFIL P ON PF.IDPERFILPERFILFASE = P.IDPERFIL AND P.IDDISCIPLINAPERFIL = D.IDDISCIPLINA`,
+      { reqID }
+    );
+    rows = result.rows;
+    console.log(rows);
+    return rows;
+  } catch (err) {
+    console.error("Error reading records:", err);
+    throw err;
+  }
+}
+
 function cerrarConexion(conexion) {
   if (conexion) {
     conexion.close();
@@ -276,4 +328,6 @@ module.exports = {
   consultarInvitacion,
   consultarPerfil,
   inicializarFase,
+  updateConvocatoria,
+  getInvitados,
 };

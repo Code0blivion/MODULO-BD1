@@ -29,7 +29,6 @@ function sumbitProfile(empID, reqID, firstDate) {
       })
       .then((message) => {
         alert(message);
-        // Opcional: redirigir o actualizar la vista
         location.reload();
       })
       .catch((error) => {
@@ -37,6 +36,127 @@ function sumbitProfile(empID, reqID, firstDate) {
         alert("Hubo un error al asignar el perfil.");
       });
   });
+}
+
+function updateConvocatoria(reqID) {
+  convocatoriaForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const convocatoriaText = document.getElementById("convocatoriaText").value;
+    const currentDate = new Date();
+
+    fetch("/create-convocatoria", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ convocatoriaText, reqID, currentDate }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.text();
+        } else {
+          throw new Error("Error creando la convocatoria.");
+        }
+      })
+      .then((message) => {
+        alert(message);
+        location.reload();
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Hubo un error al asignar crear la convocatoria.");
+      });
+  });
+}
+
+function getInvitados(reqID) {
+  fetch(`/api/candidates/${reqID}`)
+    .then((response) => response.json())
+    .then((candidates) => {
+      console.log(candidates);
+      const candidatesAccordion = document.getElementById(
+        "invitationAccordion"
+      );
+
+      candidates.forEach((candidate) => {
+        const candidateAccordion = document.createElement("div");
+        candidateAccordion.className = "accordion-item mb-3";
+
+        const candidateHeader = document.createElement("h2");
+        candidateHeader.className = "accordion-header";
+
+        const candidateButton = document.createElement("button");
+        candidateButton.className = "accordion-button collapsed";
+        candidateButton.type = "button";
+        candidateButton.dataset.bsToggle = "collapse";
+        candidateButton.ariaExpanded = "false";
+        candidateButton.textContent = candidate.name;
+
+        const candidateCollapse = document.createElement("div");
+        candidateCollapse.className = "accordion-collapse collapse";
+
+        const candidateBody = document.createElement("div");
+        candidateBody.className = "accordion-body";
+
+        // Checkbox para el candidato
+        const candidateCheckbox = document.createElement("input");
+        candidateCheckbox.type = "checkbox";
+        candidateCheckbox.id = `candidateCheckbox${candidate.id}`;
+        candidateCheckbox.className = "form-check-input me-2";
+
+        // Label para el checkbox
+        const candidateLabel = document.createElement("label");
+        candidateLabel.htmlFor = `candidateCheckbox${candidate.id}`;
+        candidateLabel.className = "form-check-label";
+        candidateLabel.textContent = "Seleccionar";
+
+        // Contenido del acordeón
+        candidateBody.innerHTML = `
+        ${candidate.details}
+        <div class="form-check">
+          ${candidateCheckbox.outerHTML}
+          ${candidateLabel.outerHTML}
+        </div>
+      `;
+
+        candidateHeader.appendChild(candidateButton);
+        candidateAccordion.appendChild(candidateHeader);
+        candidateAccordion.appendChild(candidateCollapse);
+        candidateCollapse.appendChild(candidateBody);
+
+        candidatesAccordion.appendChild(candidateAccordion);
+      });
+    });
+
+  document
+    .getElementById("invitationForm")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const invitationDetails = e.target.querySelector("textarea").value;
+      const invitationDateTime = e.target.querySelector(
+        "#invitationDateTime"
+      ).value;
+
+      const response = await fetch("/api/invitation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          reqID,
+          invitationDetails,
+          invitationDateTime,
+        }),
+      });
+
+      if (response.ok) {
+        alert("Invitación enviada exitosamente");
+      } else {
+        alert("Error al enviar la invitación");
+      }
+    });
 }
 
 async function getDetails() {
@@ -50,8 +170,12 @@ async function getDetails() {
     .then((data) => {
       const details = data["reque"][0];
       let fase = Number(data["fase"][0]);
-
-      const startDate = new Date(details[0]);
+      let startDate;
+      if (data["fase"][2] === undefined) {
+        startDate = new Date(details[0]);
+      } else {
+        startDate = new Date(data["fase"][2]);
+      }
 
       // Formatear la fecha y la hora según tus preferencias
       const formattedDate = startDate.toLocaleDateString();
@@ -121,31 +245,34 @@ async function getDetails() {
           accordions[2].setAttribute("aria-disabled", "true");
           accordions[2].setAttribute("tabindex", "-1");
           accordions[2].removeAttribute("data-bs-toggle");
+          updateConvocatoria(reqID);
+          setGreenBackground(0);
           break;
         case 4:
           accordions[0].classList.add("disabled");
           accordions[0].setAttribute("aria-disabled", "true");
           accordions[0].setAttribute("tabindex", "-1");
           accordions[0].removeAttribute("data-bs-toggle");
-          setGreenBackground(0);
 
           accordions[2].classList.add("disabled");
           accordions[2].setAttribute("aria-disabled", "true");
           accordions[2].setAttribute("tabindex", "-1");
           accordions[2].removeAttribute("data-bs-toggle");
+
+          setGreenBackground(1);
+          getInvitados(reqID);
           break;
         case 5:
           accordions[0].classList.add("disabled");
           accordions[0].setAttribute("aria-disabled", "true");
           accordions[0].setAttribute("tabindex", "-1");
           accordions[0].removeAttribute("data-bs-toggle");
-          setGreenBackground(0);
 
           accordions[1].classList.add("disabled");
           accordions[1].setAttribute("aria-disabled", "true");
           accordions[1].setAttribute("tabindex", "-1");
           accordions[1].removeAttribute("data-bs-toggle");
-          setGreenBackground(1);
+          setGreenBackground(2);
           break;
 
         default:
@@ -157,11 +284,12 @@ async function getDetails() {
               button.setAttribute("tabindex", "-1");
               button.removeAttribute("data-bs-toggle");
             });
+            /*
             if (fase > 5) {
               accordions.forEach((accordion, index) => {
                 setGreenBackground(index);
               });
-            }
+            }*/
           }
           break;
       }

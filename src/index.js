@@ -15,6 +15,8 @@ const {
   consultarInvitacion,
   consultarPerfil,
   inicializarFase,
+  updateConvocatoria,
+  getInvitados,
 } = require("./static/scripts/database");
 
 app.use(express.static(path.join(__dirname, "static")));
@@ -41,8 +43,8 @@ app.get("/req/:id", (req, res) => {
 
 app.get("/api/req/:id", async (req, res) => {
   const reqID = Number(req.params.id);
-  let conexion = await getConexion();
-  let reque = await consultarRequerimiento(conexion, reqID);
+  const conexion = await getConexion();
+  const reque = await consultarRequerimiento(conexion, reqID);
   const fase = await consultarFase(conexion, reqID);
   const convocatoria = await consultarConvocatoria(conexion, reqID);
   const invitacion = await consultarInvitacion(conexion, reqID);
@@ -64,6 +66,22 @@ app.post("/api/assignProfile", async (req, res) => {
   );
   cerrarConexion(conexion);
   return res.status(200).send("Perfil Asignado Correctamente");
+});
+
+app.post("/create-convocatoria", async (req, res) => {
+  const { convocatoriaText, reqID, currentDate } = req.body;
+  let conexion = await getConexion();
+  updateConvocatoria(conexion, reqID, convocatoriaText, currentDate);
+  cerrarConexion();
+  res.status(200).send("Convocatoria creada exitosamente");
+});
+
+app.get("/api/candidates/:id", async (req, res) => {
+  const reqID = Number(req.params.id);
+  let conexion = await getConexion();
+  const invitados = await getInvitados(conexion, reqID);
+  cerrarConexion();
+  res.json({ invitados });
 });
 
 app.get("/opcionados", (req, res) => {

@@ -24,15 +24,15 @@
                 <p><strong>Fase Actual:</strong> <span id="currentPhase"></span></p>
                 <p>
                     <strong>Fecha Inicio:</strong>
-                    <span id="startDate">20/05/2024</span>
+                    <span id="startDate"></span>
                 </p>
                 <p>
                     <strong>Salario Mínimo:</strong>
-                    <span id="minSalary">$1,000,000</span>
+                    <span id="minSalary"></span>
                 </p>
                 <p>
                     <strong>Salario Máximo:</strong>
-                    <span id="maxSalary">$2,000,000</span>
+                    <span id="maxSalary"></span>
                 </p>
                 <p>
                     <strong>Descripción Funciones:</strong>
@@ -53,7 +53,7 @@
                 </p>
                 <p>
                     <strong>Número de Vacantes:</strong>
-                    <span id="vacancyNumber">5</span>
+                    <span id="vacancyNumber"></span>
                 </p>
 
                 <form id="assignProfileForm" class="pt-3">
@@ -84,7 +84,7 @@
                             <div class="accordion-body">
                                 <form id="convocatoriaForm">
                                     <textarea class="form-control mb-3" rows="3" id="convocatoriaText"
-                                        placeholder="Detalles de la convocatoria"></textarea>
+                                        placeholder="Detalles de la convocatoria" maxlength="50"></textarea>
                                     <button type="submit" class="btn btn-warning">Crear convocatoria</button>
                                 </form>
                             </div>
@@ -100,52 +100,15 @@
                         <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
                             data-bs-parent="#accordionExample">
                             <div class="accordion-body">
-                                <textarea class="form-control mb-3" rows="3"
-                                    placeholder="Detalles de la invitación"></textarea>
-                                <!-- Lista de acordeones checkbox -->
-                                <div class="accordion" id="invitationAccordion">
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header" id="invitationHeadingOne">
-                                            <div class="d-flex align-items-center">
-                                                <input type="checkbox" id="invitationCheckboxOne"
-                                                    class="form-check-input me-2">
-                                                <button class="accordion-button collapsed flex-grow-1" type="button"
-                                                    data-bs-toggle="collapse" data-bs-target="#invitationCollapseOne"
-                                                    aria-expanded="true" aria-controls="invitationCollapseOne">
-                                                    Invitado 1
-                                                </button>
-                                            </div>
-                                        </h2>
-                                        <div id="invitationCollapseOne" class="accordion-collapse collapse"
-                                            aria-labelledby="invitationHeadingOne"
-                                            data-bs-parent="#invitationAccordion">
-                                            <div class="accordion-body">
-                                                Contenido del invitado 1
-                                            </div>
-                                        </div>
+                                <form id="invitationForm">
+                                    <textarea class="form-control mb-3" rows="3"
+                                        placeholder="Detalles de la invitación"></textarea>
+                                    <input type="datetime-local" class="form-control mb-3" id="invitationDateTime">
+                                    <div class="accordion" id="invitationAccordion">
+                                        <!-- Aquí se poblarán los acordeones internos -->
                                     </div>
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header" id="invitationHeadingTwo">
-                                            <div class="d-flex align-items-center">
-                                                <input type="checkbox" id="invitationCheckboxTwo"
-                                                    class="form-check-input me-2">
-                                                <button class="accordion-button collapsed flex-grow-1" type="button"
-                                                    data-bs-toggle="collapse" data-bs-target="#invitationCollapseTwo"
-                                                    aria-expanded="false" aria-controls="invitationCollapseTwo">
-                                                    Invitado 2
-                                                </button>
-                                            </div>
-                                        </h2>
-                                        <div id="invitationCollapseTwo" class="accordion-collapse collapse"
-                                            aria-labelledby="invitationHeadingTwo"
-                                            data-bs-parent="#invitationAccordion">
-                                            <div class="accordion-body">
-                                                Contenido del invitado 2
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-success">Enviar Invitación</button>
+                                    <button type="submit" class="btn btn-success">Enviar Invitación</button>
+                                </form>
                             </div>
                         </div>
                     </div>
