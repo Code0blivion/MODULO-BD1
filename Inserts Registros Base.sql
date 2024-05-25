@@ -287,11 +287,16 @@ INSERT INTO Cargo VALUES (10, '005', 'E0010', TO_DATE('2024-05-10', 'YYYY-MM-DD'
 
 
 --Insertar Requerimiento
-INSERT INTO Requerimiento VALUES (1, 'E0001', NULL, CURRENT_TIMESTAMP, 150000, 120000, 'Profesional Senior - Informática', 'Ingeniería en Sistemas', 2);
-INSERT INTO Requerimiento VALUES (2, 'E0002', NULL, CURRENT_TIMESTAMP, 150000, 130000, 'Directivo Superior - Tecnología de la Informacion', 'Ciencias de la Computación', 1);
-INSERT INTO Requerimiento VALUES (3, 'E0001', NULL, CURRENT_TIMESTAMP, 140000, 100000, 'Profesional Senior - Desarrollo de Software', 'Ingeniería de Software', 3);
-INSERT INTO Requerimiento VALUES (4, 'E0002', NULL, CURRENT_TIMESTAMP, 150000, 110000, 'Directivo Superior - Sistemas de Información', 'Ingeniería en Sistemas', 2);
-INSERT INTO Requerimiento VALUES (5, 'E0001', NULL, CURRENT_TIMESTAMP, 130000, 90000, 'Profesional Senior - Seguridad Informática', 'Ingeniería en Seguridad Informática', 1);
+INSERT INTO Requerimiento VALUES (1, 'E0001', 'E0003', CURRENT_TIMESTAMP, 150000, 120000, 'Profesional Senior - Informatica', 'Ingenieria en Sistemas', 2);
+INSERT INTO Requerimiento VALUES (2, 'E0002', 'E0004', CURRENT_TIMESTAMP, 150000, 130000, 'Directivo Superior - Tecnologia de la Informacion', 'Ciencias de la Computacion', 1);
+INSERT INTO Requerimiento VALUES (3, 'E0001', 'E0003', CURRENT_TIMESTAMP, 140000, 100000, 'Profesional Senior - Desarrollo de Software', 'Ingenieria de Software', 3);
+INSERT INTO Requerimiento VALUES (4, 'E0002', 'E0004', CURRENT_TIMESTAMP, 150000, 110000, 'Directivo Superior - Sistemas de Informacion', 'Ingenieria en Sistemas', 2);
+INSERT INTO Requerimiento VALUES (5, 'E0001', 'E0003', CURRENT_TIMESTAMP, 130000, 90000, 'Profesional Senior - Seguridad Informatica', 'Ingenieria en Seguridad Informatica', 1);
 
 
+commit;
 
+--Verificar ProcesoRequerimiento
+select ConsProceso ID, idFasePerfilFase Fase, 
+idPerfilProcCan Perfil, consecRequeProcReque Req, codEmpleadoProceReque Emp, 
+fechaInicio Fecha from procesoRequerimiento;
