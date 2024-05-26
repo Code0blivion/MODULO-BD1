@@ -70,7 +70,7 @@ function updateConvocatoria(reqID) {
   });
 }
 
-function getInvitados(reqID) {
+function getInvitados(reqID, profileID) {
   fetch(`/api/candidates/${reqID}`)
     .then((response) => response.json())
     .then((data) => {
@@ -155,41 +155,59 @@ function getInvitados(reqID) {
     })
     .catch((error) => console.error("Error fetching candidates:", error));
 
-  document.getElementById("invitationForm").addEventListener("submit", (e) => {
-    e.preventDefault();
+  document
+    .getElementById("invitationForm")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    const invitationDetails = e.target.querySelector("textarea").value;
-    const invitationDateTime = e.target.querySelector(
-      "#invitationDateTime"
-    ).value;
+      const invitationDetails = e.target.querySelector("textarea").value;
+      const invitationDateTime = e.target.querySelector(
+        "#invitationDateTime"
+      ).value;
 
-    fetch("/api/invitation", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        reqID,
-        invitationDetails,
-        invitationDateTime,
-      }),
-    })
-      .then((response) => {
+      // Obtener los checkboxes seleccionados de los acordeones internos
+      const checkboxes = document.querySelectorAll(
+        "#invitationAccordion input[type='checkbox']:checked"
+      );
+      const selectedCandidates = Array.from(checkboxes).map(
+        (checkbox) => checkbox.value
+      );
+
+      try {
+        const currentDate = new Date();
+        const response = await fetch("/api/invitation", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            reqID,
+            invitationDetails,
+            currentDate,
+            invitationDateTime,
+            selectedCandidates,
+            profileID,
+          }),
+        });
+
         if (response.ok) {
           alert("Invitación enviada exitosamente");
         } else {
-          throw new Error("Error al enviar la invitación");
+          alert("Error al enviar la invitación");
         }
-      })
-      .catch((error) => alert(error.message));
-  });
+        location.reload();
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Error al enviar la invitación");
+      }
+    });
 }
 
-function getPreseleccionados(reqID) {
-  fetch(`/api/candidates/${reqID}`)
+function getPreseleccionados(reqID, profileID) {
+  fetch(`/api/preseleccionados/${reqID}`)
     .then((response) => response.json())
     .then((data) => {
-      const candidates = data.invitados; // Asegúrate de que el endpoint devuelva el mismo formato
+      const candidates = data.preseleccionados;
 
       const preselectionAccordion = document.getElementById(
         "preselectionAccordion"
@@ -269,6 +287,48 @@ function getPreseleccionados(reqID) {
         preselectionAccordion.appendChild(candidateAccordion);
       });
     });
+
+  // Enviar el formulario de preselección
+  document
+    .getElementById("preselectionForm")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      // Obtener los checkboxes seleccionados de los acordeones internos
+      const checkboxes = document.querySelectorAll(
+        "#preselectionAccordion input[type='checkbox']:checked"
+      );
+      const selectedCandidates = Array.from(checkboxes).map(
+        (checkbox) => checkbox.value
+      );
+
+      // Enviar la solicitud POST al endpoint del servidor
+      try {
+        const currentDate = new Date();
+        const response = await fetch("/api/preseleccion", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            reqID,
+            currentDate,
+            selectedCandidates,
+            profileID,
+          }),
+        });
+
+        if (response.ok) {
+          alert("Preselección enviada exitosamente");
+          location.reload();
+        } else {
+          alert("Error al enviar la preselección");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Error al enviar la preselección");
+      }
+    });
 }
 
 async function getDetails() {
@@ -282,7 +342,6 @@ async function getDetails() {
     .then((data) => {
       const details = data["reque"][0];
       let fase = Number(data["fase"][0]);
-      fase = 5;
       let startDate;
       if (data["fase"][2] === undefined) {
         startDate = new Date(details[0]);
@@ -328,7 +387,7 @@ async function getDetails() {
       } else {
         const perfil = data.perfil;
         const option = document.createElement("option");
-        option.textContent = perfil[0] + " - " + perfil[1];
+        option.textContent = perfil[1] + " - " + perfil[2];
         option.selected = true;
         profileSelect.appendChild(option);
         profileSelect.disabled = true;
@@ -373,7 +432,7 @@ async function getDetails() {
           accordions[2].removeAttribute("data-bs-toggle");
 
           setGreenBackground(1);
-          getInvitados(reqID);
+          getInvitados(reqID, data.perfil[0]);
           break;
         case 5:
           accordions[0].classList.add("disabled");
@@ -386,7 +445,7 @@ async function getDetails() {
           accordions[1].setAttribute("tabindex", "-1");
           accordions[1].removeAttribute("data-bs-toggle");
           setGreenBackground(2);
-          getPreseleccionados(reqID);
+          getPreseleccionados(reqID, data.perfil[0]);
           break;
 
         default:

@@ -17,6 +17,9 @@ const {
   inicializarFase,
   updateConvocatoria,
   getInvitados,
+  mandarInvitaciones,
+  getPreseleccionados,
+  preseleccionar,
 } = require("./static/scripts/database");
 
 app.use(express.static(path.join(__dirname, "static")));
@@ -26,7 +29,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 configuraciónLibreria();
 
 app.get("/", async (req, res) => {
-  const conexion = await getConexion();
+  //const conexion = await getConexion();
 });
 
 app.get("/lista_requerimientos", (req, res) => {
@@ -77,7 +80,7 @@ app.post("/api/assignProfile", async (req, res) => {
 app.post("/create-convocatoria", async (req, res) => {
   const { convocatoriaText, reqID, currentDate } = req.body;
   let conexion = await getConexion();
-  updateConvocatoria(conexion, reqID, convocatoriaText, currentDate);
+  await updateConvocatoria(conexion, reqID, convocatoriaText, currentDate);
   cerrarConexion();
   res.status(200).send("Convocatoria creada exitosamente");
 });
@@ -90,8 +93,57 @@ app.get("/api/candidates/:id", async (req, res) => {
   res.json({ invitados });
 });
 
-app.get("/opcionados", (req, res) => {
-  res.sendFile(path.join(__dirname, "/static/templates/lista_opcionados.html"));
+app.post("/api/invitation", async (req, res) => {
+  const {
+    reqID,
+    invitationDetails,
+    currentDate,
+    invitationDateTime,
+    selectedCandidates,
+    profileID,
+  } = req.body;
+
+  const conexion = await getConexion();
+
+  await mandarInvitaciones(
+    conexion,
+    reqID,
+    invitationDetails,
+    currentDate,
+    invitationDateTime,
+    selectedCandidates,
+    profileID
+  );
+
+  cerrarConexion();
+
+  res.status(200).json({ message: "Invitation sent successfully" });
+});
+
+app.get("/api/preseleccionados/:id", async (req, res) => {
+  const reqID = Number(req.params.id);
+  let conexion = await getConexion();
+  const preseleccionados = await getPreseleccionados(conexion, reqID);
+  cerrarConexion();
+  res.json({ preseleccionados });
+});
+
+app.post("/api/preseleccion", async (req, res) => {
+  const { reqID, currentDate, selectedCandidates, profileID } = req.body;
+
+  const conexion = await getConexion();
+
+  await preseleccionar(
+    conexion,
+    reqID,
+    profileID,
+    currentDate,
+    selectedCandidates
+  );
+
+  cerrarConexion();
+
+  res.status(200).json({ message: "Invitation sent successfully" });
 });
 
 const PORT = process.env.PORT || 3000;

@@ -141,7 +141,7 @@ async function consultarInvitacion(con, id) {
 async function consultarPerfil(con, id) {
   try {
     let result = await con.execute(
-      `SELECT P.DESPERFIL, D.DESCDISCIPLINA FROM PROCESOREQUERIMIENTO PR JOIN REQUERIMIENTO R ON
+      `SELECT P.IDPERFIL, P.DESPERFIL, D.DESCDISCIPLINA FROM PROCESOREQUERIMIENTO PR JOIN REQUERIMIENTO R ON
        PR.CONSECREQUEPROCREQUE = R.CONSECREQUE JOIN PERFILFASE PF ON PF.IDFASEPERFILFASE =
        PR.IDFASEPERFILFASE AND PF.IDPERFILPERFILFASE = IDPERFILPROCCAN JOIN FASE F ON 
        F.IDFASE = PF.IDFASEPERFILFASE JOIN PERFIL P ON P.IDPERFIL = PF.IDPERFILPERFILFASE JOIN
@@ -300,15 +300,155 @@ async function getInvitados(conexion, reqID) {
       H.IDTIPOITEMPERFILHV = TI.IDTIPOITEMPERFIL JOIN PROCESOREQUERIMIENTO PR ON
       PR.CONSECREQUEPROCREQUE = :reqID AND IDFASEPERFILFASE = '0004' JOIN PERFILFASE PF
       ON PR.IDFASEPERFILFASE = PF.IDFASEPERFILFASE AND PR.IDPERFILPROCCAN = PF.IDPERFILPERFILFASE
-      JOIN PERFIL P ON PF.IDPERFILPERFILFASE = P.IDPERFIL AND P.IDDISCIPLINAPERFIL = D.IDDISCIPLINA`,
+      JOIN PERFIL P ON PF.IDPERFILPERFILFASE = P.IDPERFIL AND P.IDDISCIPLINAPERFIL = D.IDDISCIPLINA
+      LEFT JOIN PROCESOCANDIDATO PC ON PC.USUARIO = C.USUARIO AND PC.IDFASEPROCCAN = '0003'
+      WHERE PC.USUARIO IS NULL`,
       { reqID }
     );
-    rows = result.rows;
+    let rows = result.rows;
     console.log(rows);
     return rows;
   } catch (err) {
     console.error("Error reading records:", err);
     throw err;
+  }
+}
+
+async function mandarInvitaciones(
+  conexion,
+  reqID,
+  invitacion,
+  currentDate,
+  fecha,
+  invitados,
+  profileID
+) {
+  let result;
+  try {
+    result = await conexion.execute(
+      `UPDATE PROCESOREQUERIMIENTO
+       SET INVITACION = :invitacion,
+       fechaFin = TO_TIMESTAMP(:currentDate, 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"')
+       WHERE CONSECREQUEPROCREQUE = :reqID AND
+       IDFASEPERFILFASE = '0004'`,
+      { reqID, invitacion, currentDate }
+    );
+
+    result = await conexion.execute(
+      `SELECT CONSPROCESO FROM PROCESOREQUERIMIENTO
+                                   WHERE IDFASEPERFILFASE = '0004' AND IDPERFILPROCCAN = :profileID
+                                   AND CONSECREQUEPROCREQUE = :reqID`,
+      { profileID, reqID }
+    );
+    let consReque = result.rows[0][0];
+
+    console.log(consReque);
+
+    invitados.forEach(async (invitado) => {
+      result = await conexion.execute(
+        `INSERT INTO PROCESOCANDIDATO (idFaseProcCan, idPerfilProcCan,
+                                     consecRequeProcCan, ConsProcesoProcCan, usuario, fechaPresentacion)
+                                     VALUES('0004', :profileID, :reqID, :consReque, :invitado, 
+                                     TO_TIMESTAMP(:fecha, 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"'))`,
+        { profileID, reqID, consReque, invitado, fecha }
+      );
+      console.log(result);
+    });
+
+    await conexion.commit();
+  } catch (err) {
+    console.error("Error reading records:", err);
+    if (conexion) {
+      await conexion.rollback();
+    }
+    throw err; // Lanzar el error para manejarlo en la llamada a esta función
+  }
+}
+
+async function getPreseleccionados(conexion, reqID) {
+  try {
+    let result = await conexion.execute(
+      `SELECT C.USUARIO, C.NOMBRE, C.APELLIDO, C.FECHANACCAN,
+      C.NDOC, T.DESCTIPODOC, H.DESCACTIVIDAD, H.FUNCIONACTIVIDAD,
+      TI.DESCTIPOITEMPERFIL, INT.NOMINSTITUCION, D.DESCDISCIPLINA FROM 
+      CANDIDATO C JOIN DISCIPLINA D ON C.IDDISCIPLINACAN = D.IDDISCIPLINA
+      JOIN HV H ON H.USUARIOHV = C.USUARIO JOIN INSTITUCION INT ON
+      H.CODINSTITUCIONHV = INT.CODINSTITUCION 
+      JOIN TIPODOC T ON T.IDTIPODOC = C.IDTIPODOCCAN JOIN TIPOITEMPERFIL TI ON
+      H.IDTIPOITEMPERFILHV = TI.IDTIPOITEMPERFIL JOIN PROCESOREQUERIMIENTO PR ON
+      PR.CONSECREQUEPROCREQUE = :reqID AND IDFASEPERFILFASE = '0004' JOIN PERFILFASE PF
+      ON PR.IDFASEPERFILFASE = PF.IDFASEPERFILFASE AND PR.IDPERFILPROCCAN = PF.IDPERFILPERFILFASE
+      JOIN PERFIL P ON PF.IDPERFILPERFILFASE = P.IDPERFIL AND P.IDDISCIPLINAPERFIL = D.IDDISCIPLINA
+      JOIN PROCESOCANDIDATO PC ON PC.USUARIO = C.USUARIO AND PC.IDFASEPROCCAN = '0003'
+      UNION
+      SELECT C.USUARIO, C.NOMBRE, C.APELLIDO, C.FECHANACCAN,
+      C.NDOC, T.DESCTIPODOC, H.DESCACTIVIDAD, H.FUNCIONACTIVIDAD,
+      TI.DESCTIPOITEMPERFIL, INT.NOMINSTITUCION, D.DESCDISCIPLINA FROM 
+      CANDIDATO C JOIN DISCIPLINA D ON C.IDDISCIPLINACAN = D.IDDISCIPLINA
+      JOIN HV H ON H.USUARIOHV = C.USUARIO JOIN INSTITUCION INT ON
+      H.CODINSTITUCIONHV = INT.CODINSTITUCION 
+      JOIN TIPODOC T ON T.IDTIPODOC = C.IDTIPODOCCAN JOIN TIPOITEMPERFIL TI ON
+      H.IDTIPOITEMPERFILHV = TI.IDTIPOITEMPERFIL JOIN PROCESOREQUERIMIENTO PR ON
+      PR.CONSECREQUEPROCREQUE = :reqID AND IDFASEPERFILFASE = '0004' JOIN PERFILFASE PF
+      ON PR.IDFASEPERFILFASE = PF.IDFASEPERFILFASE AND PR.IDPERFILPROCCAN = PF.IDPERFILPERFILFASE
+      JOIN PERFIL P ON PF.IDPERFILPERFILFASE = P.IDPERFIL AND P.IDDISCIPLINAPERFIL = D.IDDISCIPLINA
+      JOIN PROCESOCANDIDATO PC ON PC.USUARIO = C.USUARIO AND PC.IDFASEPROCCAN = '0004'`,
+      { reqID }
+    );
+    let rows = result.rows;
+    console.log(rows);
+    return rows;
+  } catch (err) {
+    console.error("Error reading records:", err);
+    throw err;
+  }
+}
+
+async function preseleccionar(
+  conexion,
+  reqID,
+  profileID,
+  currentDate,
+  candidatos
+) {
+  let result;
+  try {
+    result = await conexion.execute(
+      `UPDATE PROCESOREQUERIMIENTO
+       SET fechaFin = TO_TIMESTAMP(:currentDate, 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"')
+       WHERE CONSECREQUEPROCREQUE = :reqID AND
+       IDFASEPERFILFASE = '0005'`,
+      { reqID, currentDate }
+    );
+
+    result = await conexion.execute(
+      `SELECT CONSPROCESO FROM PROCESOREQUERIMIENTO
+                                   WHERE IDFASEPERFILFASE = '0005' AND IDPERFILPROCCAN = :profileID
+                                   AND CONSECREQUEPROCREQUE = :reqID`,
+      { profileID, reqID }
+    );
+    let consReque = result.rows[0][0];
+
+    console.log(consReque);
+
+    candidatos.forEach(async (candidato) => {
+      result = await conexion.execute(
+        `INSERT INTO PROCESOCANDIDATO (idFaseProcCan, idPerfilProcCan,
+                                     consecRequeProcCan, ConsProcesoProcCan, usuario, fechaPresentacion)
+                                     VALUES('0005', :profileID, :reqID, :consReque, :candidato, 
+                                     TO_TIMESTAMP(:currentDate, 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"'))`,
+        { profileID, reqID, consReque, candidato, currentDate }
+      );
+      console.log(result);
+    });
+
+    await conexion.commit();
+  } catch (err) {
+    console.error("Error reading records:", err);
+    if (conexion) {
+      await conexion.rollback();
+    }
+    throw err; // Lanzar el error para manejarlo en la llamada a esta función
   }
 }
 
@@ -330,4 +470,7 @@ module.exports = {
   inicializarFase,
   updateConvocatoria,
   getInvitados,
+  mandarInvitaciones,
+  getPreseleccionados,
+  preseleccionar,
 };

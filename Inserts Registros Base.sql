@@ -300,3 +300,11 @@ commit;
 select ConsProceso ID, idFasePerfilFase Fase, 
 idPerfilProcCan Perfil, consecRequeProcReque Req, codEmpleadoProceReque Emp, 
 fechaInicio Fecha from procesoRequerimiento;
+
+insert into ProcesoCandidato values('0003','0001', 1, 3, 'user01', sysdate, 'sfds', 'sdfsd');
+
+UPDATE PROCESOREQUERIMIENTO
+       SET INVITACION = NULL,
+       fechaFin = NULL
+       WHERE CONSECREQUEPROCREQUE = 1 AND
+       IDFASEPERFILFASE = '0004';
