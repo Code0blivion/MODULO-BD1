@@ -20,6 +20,9 @@ const {
   mandarInvitaciones,
   getPreseleccionados,
   preseleccionar,
+  getHeaderReq,
+  getEmpleado,
+  getCargo,
 } = require("./static/scripts/database");
 
 app.use(express.static(path.join(__dirname, "static")));
@@ -29,10 +32,39 @@ app.use(bodyParser.urlencoded({ extended: true }));
 configuraciónLibreria();
 
 app.get("/", async (req, res) => {
-  //const conexion = await getConexion();
+  res.sendFile(path.join(__dirname, "/static/templates/login.html"));
 });
 
-app.get("/lista_requerimientos", (req, res) => {
+app.post("/api/login", async (req, res) => {
+  const { usuario, contrasena } = req.body;
+  const conexion = await getConexion();
+  let empID = await getEmpleado(conexion, usuario, contrasena);
+
+  if (empID === undefined) {
+    console.log("Credenciales incorrectas");
+    return res.status(401).json({ error: "Credenciales incorrectas" });
+  } else {
+    let cargo = await getCargo(conexion, empID[0]);
+
+    let redir;
+    switch (cargo[0]) {
+      case "001":
+        break;
+      case "002":
+        redir = "/lista_requerimientos/" + empID;
+        break;
+      case "003":
+        break;
+      case "004":
+        redir = "/lista_requerimientos/" + empID;
+    }
+    console.log(redir);
+    cerrarConexion();
+    return res.json({ redir });
+  }
+});
+
+app.get("/lista_requerimientos/:id", (req, res) => {
   res.sendFile(
     path.join(__dirname, "/static/templates/lista_requerimientos.html")
   );
@@ -58,8 +90,9 @@ app.get("/api/req/:id", async (req, res) => {
   const convocatoria = await consultarConvocatoria(conexion, reqID);
   const invitacion = await consultarInvitacion(conexion, reqID);
   const perfil = await consultarPerfil(conexion, reqID);
+  const empleado = await getHeaderReq(conexion, reqID);
   cerrarConexion(conexion);
-  res.json({ reque, fase, convocatoria, invitacion, perfil });
+  res.json({ reque, fase, convocatoria, invitacion, perfil, empleado });
 });
 
 app.post("/api/assignProfile", async (req, res) => {

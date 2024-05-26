@@ -293,13 +293,18 @@ INSERT INTO Requerimiento VALUES (3, 'E0001', 'E0003', CURRENT_TIMESTAMP, 140000
 INSERT INTO Requerimiento VALUES (4, 'E0002', 'E0004', CURRENT_TIMESTAMP, 150000, 110000, 'Directivo Superior - Sistemas de Informacion', 'Ingenieria en Sistemas', 2);
 INSERT INTO Requerimiento VALUES (5, 'E0001', 'E0003', CURRENT_TIMESTAMP, 130000, 90000, 'Profesional Senior - Seguridad Informatica', 'Ingenieria en Seguridad Informatica', 1);
 
+--Insertar Sesion
+INSERT INTO Sesion VALUEs ('ana.gomez@example.com', 'E0001', '123');
+
 
 commit;
+
 
 --Verificar ProcesoRequerimiento
 select ConsProceso ID, idFasePerfilFase Fase, 
 idPerfilProcCan Perfil, consecRequeProcReque Req, codEmpleadoProceReque Emp, 
 fechaInicio Fecha from procesoRequerimiento;
+
 
 insert into ProcesoCandidato values('0003','0001', 1, 3, 'user01', sysdate, 'sfds', 'sdfsd');
 
@@ -308,3 +313,5 @@ UPDATE PROCESOREQUERIMIENTO
        fechaFin = NULL
        WHERE CONSECREQUEPROCREQUE = 1 AND
        IDFASEPERFILFASE = '0004';
+	   
+	   

@@ -353,6 +353,11 @@ async function getDetails() {
       const formattedDate = startDate.toLocaleDateString();
       const formattedTime = startDate.toLocaleTimeString();
 
+      document.getElementById("username").textContent =
+        data.empleado[0] + " " + data.empleado[1];
+      document.getElementById("date").textContent =
+        new Date().toLocaleDateString("es-ES");
+
       document.getElementById("currentPhase").textContent =
         fase + " - " + data["fase"][1];
       // Desplegar la fecha y la hora en el elemento startDate
@@ -372,28 +377,15 @@ async function getDetails() {
       document.getElementById("careerDescription").textContent = details[4];
       document.getElementById("vacancyNumber").textContent = details[5];
 
-      const profileSelect = document.getElementById("profileSelect");
-
       if (fase === 2) {
-        profileSelect.innerHTML =
-          "<option selected>Selecciona una opción</option>";
-        data.perfil.forEach((perfil) => {
-          const option = document.createElement("option");
-          option.value = perfil[0];
-          option.textContent = perfil[1] + " - " + perfil[2];
-          profileSelect.appendChild(option);
-        });
-        sumbitProfile(details[6], reqID, startDate);
+        document.getElementById("perfil").textContent =
+          "No se ha definido un perfil";
+        document.getElementById("disciplina").textContent =
+          "No se ha definido una disciplina";
       } else {
-        const perfil = data.perfil;
-        const option = document.createElement("option");
-        option.textContent = perfil[1] + " - " + perfil[2];
-        option.selected = true;
-        profileSelect.appendChild(option);
-        profileSelect.disabled = true;
-        document.querySelector(
-          '#assignProfileForm button[type="submit"]'
-        ).disabled = true;
+        console.log(data.perfil);
+        document.getElementById("perfil").textContent = data.perfil[1];
+        document.getElementById("disciplina").textContent = data.perfil[2];
       }
 
       const accordions = document.querySelectorAll(
@@ -406,56 +398,66 @@ async function getDetails() {
         }
       };
 
+      const disableAccordion = (index) => {
+        if (accordions[index]) {
+          accordions[index].classList.add("disabled");
+          accordions[index].setAttribute("aria-disabled", "true");
+          accordions[index].setAttribute("tabindex", "-1");
+          accordions[index].removeAttribute("data-bs-toggle");
+        }
+      };
+
       switch (fase) {
-        case 3:
-          accordions[1].classList.add("disabled");
-          accordions[1].setAttribute("aria-disabled", "true");
-          accordions[1].setAttribute("tabindex", "-1");
-          accordions[1].removeAttribute("data-bs-toggle");
-
-          accordions[2].classList.add("disabled");
-          accordions[2].setAttribute("aria-disabled", "true");
-          accordions[2].setAttribute("tabindex", "-1");
-          accordions[2].removeAttribute("data-bs-toggle");
-          updateConvocatoria(reqID);
+        case 2:
+          disableAccordion(1);
+          disableAccordion(2);
+          disableAccordion(3);
           setGreenBackground(0);
+
+          const profileSelect = document.getElementById("profileSelect");
+
+          profileSelect.innerHTML =
+            "<option selected>Selecciona una opción</option>";
+          data.perfil.forEach((perfil) => {
+            const option = document.createElement("option");
+            option.value = perfil[0];
+            option.textContent = perfil[1] + " - " + perfil[2];
+            profileSelect.appendChild(option);
+          });
+
+          sumbitProfile(details[6], reqID, startDate);
+
           break;
-        case 4:
-          accordions[0].classList.add("disabled");
-          accordions[0].setAttribute("aria-disabled", "true");
-          accordions[0].setAttribute("tabindex", "-1");
-          accordions[0].removeAttribute("data-bs-toggle");
 
-          accordions[2].classList.add("disabled");
-          accordions[2].setAttribute("aria-disabled", "true");
-          accordions[2].setAttribute("tabindex", "-1");
-          accordions[2].removeAttribute("data-bs-toggle");
-
+        case 3:
+          disableAccordion(0);
+          disableAccordion(2);
+          disableAccordion(3);
           setGreenBackground(1);
+          updateConvocatoria(reqID);
+          break;
+
+        case 4:
+          disableAccordion(0);
+          disableAccordion(1);
+          disableAccordion(3);
+          setGreenBackground(2);
           getInvitados(reqID, data.perfil[0]);
           break;
-        case 5:
-          accordions[0].classList.add("disabled");
-          accordions[0].setAttribute("aria-disabled", "true");
-          accordions[0].setAttribute("tabindex", "-1");
-          accordions[0].removeAttribute("data-bs-toggle");
 
-          accordions[1].classList.add("disabled");
-          accordions[1].setAttribute("aria-disabled", "true");
-          accordions[1].setAttribute("tabindex", "-1");
-          accordions[1].removeAttribute("data-bs-toggle");
-          setGreenBackground(2);
+        case 5:
+          disableAccordion(0);
+          disableAccordion(1);
+          disableAccordion(2);
+          setGreenBackground(3);
           getPreseleccionados(reqID, data.perfil[0]);
           break;
 
         default:
-          if (fase == 2 || fase > 5) {
+          if (fase > 5) {
             // Deshabilitar todos los acordeones
-            accordions.forEach((button) => {
-              button.classList.add("disabled");
-              button.setAttribute("aria-disabled", "true");
-              button.setAttribute("tabindex", "-1");
-              button.removeAttribute("data-bs-toggle");
+            accordions.forEach((accordion, index) => {
+              disableAccordion(index);
             });
             /*
             if (fase > 5) {
@@ -465,6 +467,18 @@ async function getDetails() {
             }*/
           }
           break;
+      }
+
+      const buttons = document.querySelectorAll(
+        ".accordion-item > .accordion-header > .accordion-button"
+      );
+
+      if (fase >= 3) {
+        for (let i = 0; i < fase - 2; i++) {
+          if (buttons[i]) {
+            buttons[i].textContent += " - FASE COMPLETADA";
+          }
+        }
       }
     })
     .catch((error) => console.error("Error:", error));

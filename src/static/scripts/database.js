@@ -452,6 +452,57 @@ async function preseleccionar(
   }
 }
 
+async function getHeaderReq(con, reqID) {
+  try {
+    const result = await con.execute(
+      `
+    SELECT E.NOMEMPLEADO, E.APELLEMPLEADO FROM EMPLEADO E JOIN REQUERIMIENTO R ON
+    R.EMP_CODEMPLEADO = E.CODEMPLEADO AND R.CONSECREQUE = :reqID`,
+      { reqID }
+    );
+    const rows = result.rows;
+    return rows[0];
+  } catch (err) {
+    console.error("Error reading records:", err);
+    throw err; // Lanzar el error para manejarlo en la llamada a esta función
+  }
+}
+
+async function getEmpleado(con, usuario, contrasena) {
+  try {
+    const result = await con.execute(
+      `
+      SELECT E.CODEMPLEADO FROM EMPLEADO E JOIN SESION S ON
+      S.CODEMPLEADOFK = E.CODEMPLEADO 
+      WHERE S.USUARIOEMP = :usuario AND S.CONTRASENIA = :contrasena AND
+      E.CORREO = S.USUARIOEMP`,
+      { usuario, contrasena }
+    );
+    const rows = result.rows;
+    return rows[0];
+  } catch (err) {
+    console.error("Error reading records:", err);
+    throw err; // Lanzar el error para manejarlo en la llamada a esta función
+  }
+}
+
+async function getCargo(con, empID) {
+  try {
+    const result = await con.execute(
+      `
+      SELECT TC.IDTIPOCARGO FROM TIPOCARGO TC JOIN CARGO C ON C.IDTIPOCARGOCARGO = TC.IDTIPOCARGO
+      JOIN EMPLEADO E ON C.CODEMPLEADOCARGO = E.CODEMPLEADO
+      WHERE E.CODEMPLEADO = :empID`,
+      { empID }
+    );
+    const rows = result.rows;
+    return rows[0];
+  } catch (err) {
+    console.error("Error reading records:", err);
+    throw err; // Lanzar el error para manejarlo en la llamada a esta función
+  }
+}
+
 function cerrarConexion(conexion) {
   if (conexion) {
     conexion.close();
@@ -473,4 +524,7 @@ module.exports = {
   mandarInvitaciones,
   getPreseleccionados,
   preseleccionar,
+  getHeaderReq,
+  getEmpleado,
+  getCargo,
 };

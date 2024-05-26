@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-ES">
 
 <head>
     <meta charset="UTF-8" />
@@ -43,6 +43,14 @@
                         cargo.</span>
                 </p>
                 <p>
+                    <strong>Perfil:</strong>
+                    <span id="perfil"></span>
+                </p>
+                <p>
+                    <strong>Disciplina:</strong>
+                    <span id="disciplina"></span>
+                </p>
+                <p>
                     <strong>Convocatoria:</strong>
                     <span id="convocatoria"></span>
                 </p>
@@ -54,20 +62,34 @@
                     <strong>Número de Vacantes:</strong>
                     <span id="vacancyNumber"></span>
                 </p>
-
-                <form id="assignProfileForm" class="pt-3">
-                    <div class="form-group">
-                        <label for="profileSelect"><strong>Perfil: </strong> </label>
-                        <select id="profileSelect" name="profileSelect" class="custom-select mb-3"></select>
-                    </div>
-                    <button type="submit" class="btn btn-info">Asignar Perfil</button>
-                </form>
             </div>
 
             <div class="col-md-1"></div>
 
             <div class="col-md-5 accordions-column">
                 <div class="accordion" id="accordionExample" style="width: 100%">
+                    <div class="accordion-item mb-3">
+                        <h2 class="accordion-header" id="headingProfile">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseProfile" aria-expanded="true" aria-controls="collapseProfile">
+                                Asignar Perfil
+                            </button>
+                        </h2>
+                        <div id="collapseProfile" class="accordion-collapse collapse" aria-labelledby="headingProfile"
+                            data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <form id="assignProfileForm" class="pt-3">
+                                    <div class="form-group">
+                                        <label for="profileSelect"><strong>Perfil: </strong> </label>
+                                        <select id="profileSelect" name="profileSelect"
+                                            class="custom-select mb-3"></select>
+                                    </div>
+                                    <button type="submit" class="btn btn-info">Asignar Perfil</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="accordion-item mb-3">
                         <h2 class="accordion-header" id="headingOne">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -88,6 +110,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="accordion-item mb-3">
                         <h2 class="accordion-header" id="headingTwo">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -113,6 +136,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="accordion-item mb-3">
                         <h2 class="accordion-header" id="headingThree">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -133,8 +157,6 @@
                             </div>
                         </div>
                     </div>
-
-
                 </div>
             </div>
         </div>

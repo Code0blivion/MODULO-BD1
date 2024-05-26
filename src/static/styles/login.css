@@ -1,0 +1,91 @@
+/* login.css */
+
+/* Configuración básica */
+body,
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8f9fa;
+  font-family: Arial, sans-serif;
+}
+
+/* Estilos principales del contenedor */
+.container {
+  background-color: #fff;
+  padding: 30px 60px;
+  border-radius: 0.25rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos del título */
+h2 {
+  color: #343a40;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Estilos del formulario */
+.form-label {
+  font-size: 1.1rem;
+  color: #25486b;
+}
+
+.form-control {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.25rem;
+  border: 1px solid #ced4da;
+  font-size: 1rem;
+}
+
+.form-control:focus {
+  border-color: #25486b;
+  box-shadow: 0 0 0 0.2rem rgba(37, 72, 107, 0.25);
+}
+
+/* Estilos de los botones */
+.btn-primary {
+  background-color: #25486b;
+  border-color: #25486b;
+  padding: 0.5rem;
+  font-size: 1.1rem;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.btn-primary:hover {
+  background-color: #1d3a56;
+  border-color: #1d3a56;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  padding: 0.5rem;
+  font-size: 1.1rem;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+}
+
+.text-center {
+  margin-top: 1.5rem;
+}
+
+/* Estilo para enlaces dentro del formulario */
+a {
+  color: #25486b;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
