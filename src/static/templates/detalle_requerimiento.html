@@ -18,9 +18,8 @@
 
     <main class="mt-5">
         <div class="row justify-content-center">
-            <!-- Columna de detalles y formulario -->
             <div class="col-md-6 details-column">
-                <h2 class=" mb-4">Detalles del Requerimiento</h2>
+                <h2 class="mb-4">Detalles del Requerimiento</h2>
                 <p><strong>Fase Actual:</strong> <span id="currentPhase"></span></p>
                 <p>
                     <strong>Fecha Inicio:</strong>
@@ -59,8 +58,7 @@
                 <form id="assignProfileForm" class="pt-3">
                     <div class="form-group">
                         <label for="profileSelect"><strong>Perfil: </strong> </label>
-                        <select id="profileSelect" name="profileSelect" class="custom-select mb-3">
-                        </select>
+                        <select id="profileSelect" name="profileSelect" class="custom-select mb-3"></select>
                     </div>
                     <button type="submit" class="btn btn-info">Asignar Perfil</button>
                 </form>
@@ -68,10 +66,8 @@
 
             <div class="col-md-1"></div>
 
-            <!-- Columna de acordeones -->
             <div class="col-md-5 accordions-column">
-                <div class="accordion" id="accordionExample" style="width: 100%;">
-                    <!-- Ancho del contenedor de los acordeones aumentado -->
+                <div class="accordion" id="accordionExample" style="width: 100%">
                     <div class="accordion-item mb-3">
                         <h2 class="accordion-header" id="headingOne">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -84,8 +80,10 @@
                             <div class="accordion-body">
                                 <form id="convocatoriaForm">
                                     <textarea class="form-control mb-3" rows="3" id="convocatoriaText"
-                                        placeholder="Detalles de la convocatoria" maxlength="50"></textarea>
-                                    <button type="submit" class="btn btn-warning">Crear convocatoria</button>
+                                        placeholder="Detalles de la convocatoria" maxlength="50" required></textarea>
+                                    <button type="submit" class="btn btn-warning">
+                                        Crear convocatoria
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -101,13 +99,16 @@
                             data-bs-parent="#accordionExample">
                             <div class="accordion-body">
                                 <form id="invitationForm">
-                                    <textarea class="form-control mb-3" rows="3"
-                                        placeholder="Detalles de la invitación"></textarea>
-                                    <input type="datetime-local" class="form-control mb-3" id="invitationDateTime">
+                                    <textarea class="form-control mb-3" rows="3" placeholder="Detalles de la invitación"
+                                        maxlength="50" required></textarea>
+                                    <input type="datetime-local" class="form-control mb-3" id="invitationDateTime"
+                                        required />
                                     <div class="accordion" id="invitationAccordion">
                                         <!-- Aquí se poblarán los acordeones internos -->
                                     </div>
-                                    <button type="submit" class="btn btn-success">Enviar Invitación</button>
+                                    <button type="submit" class="btn btn-success">
+                                        Enviar Invitación
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -122,51 +123,14 @@
                         <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
                             data-bs-parent="#accordionExample">
                             <div class="accordion-body">
-                                <!-- Lista de acordeones checkbox -->
-                                <div class="accordion" id="candidatesAccordion">
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header" id="candidateHeadingOne">
-                                            <div class="d-flex align-items-center">
-                                                <input type="checkbox" id="candidateCheckboxOne"
-                                                    class="form-check-input me-2">
-                                                <button class="accordion-button collapsed flex-grow-1" type="button"
-                                                    data-bs-toggle="collapse" data-bs-target="#candidateCollapseOne"
-                                                    aria-expanded="true" aria-controls="candidateCollapseOne">
-                                                    Candidato 1
-                                                </button>
-                                            </div>
-                                        </h2>
-                                        <div id="candidateCollapseOne" class="accordion-collapse collapse"
-                                            aria-labelledby="candidateHeadingOne" data-bs-parent="#candidatesAccordion">
-                                            <div class="accordion-body">
-                                                Contenido del candidato 1
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header" id="candidateHeadingTwo">
-                                            <div class="d-flex align-items-center">
-                                                <input type="checkbox" id="candidateCheckboxTwo"
-                                                    class="form-check-input me-2">
-                                                <button class="accordion-button collapsed flex-grow-1" type="button"
-                                                    data-bs-toggle="collapse" data-bs-target="#candidateCollapseTwo"
-                                                    aria-expanded="false" aria-controls="candidateCollapseTwo">
-                                                    Candidato 2
-                                                </button>
-                                            </div>
-                                        </h2>
-                                        <div id="candidateCollapseTwo" class="accordion-collapse collapse"
-                                            aria-labelledby="candidateHeadingTwo" data-bs-parent="#candidatesAccordion">
-                                            <div class="accordion-body">
-                                                Contenido del candidato 2
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="accordion" id="preselectionAccordion">
+                                    <!-- Aquí se poblarán los acordeones internos -->
                                 </div>
                                 <button type="submit" class="btn btn-secondary">Preseleccionar Candidatos</button>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>

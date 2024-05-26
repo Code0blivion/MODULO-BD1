@@ -73,89 +73,201 @@ function updateConvocatoria(reqID) {
 function getInvitados(reqID) {
   fetch(`/api/candidates/${reqID}`)
     .then((response) => response.json())
-    .then((candidates) => {
+    .then((data) => {
+      const candidates = data.invitados;
       console.log(candidates);
       const candidatesAccordion = document.getElementById(
         "invitationAccordion"
       );
 
-      candidates.forEach((candidate) => {
+      candidates.forEach((candidate, index) => {
+        const [
+          usuario,
+          nombre,
+          apellido,
+          fechaNacimiento,
+          numeroDocumento,
+          tipoDocumento,
+          titulo,
+          cargo,
+          estudios,
+          institucion,
+          disciplina,
+        ] = candidate;
+
+        const formattedFechaNacimiento = new Date(
+          fechaNacimiento
+        ).toLocaleDateString("es-ES");
+
         const candidateAccordion = document.createElement("div");
         candidateAccordion.className = "accordion-item mb-3";
 
         const candidateHeader = document.createElement("h2");
         candidateHeader.className = "accordion-header";
+        candidateHeader.id = `candidateHeading${index}`;
+
+        const headerDiv = document.createElement("div");
+        headerDiv.className = "d-flex align-items-center";
+
+        const candidateCheckbox = document.createElement("input");
+        candidateCheckbox.type = "checkbox";
+        candidateCheckbox.className = "form-check-input me-2";
+        candidateCheckbox.id = `candidateCheckbox${index}`;
+        candidateCheckbox.value = usuario;
 
         const candidateButton = document.createElement("button");
-        candidateButton.className = "accordion-button collapsed";
+        candidateButton.className = "accordion-button collapsed flex-grow-1";
         candidateButton.type = "button";
         candidateButton.dataset.bsToggle = "collapse";
+        candidateButton.dataset.bsTarget = `#candidateCollapse${index}`;
         candidateButton.ariaExpanded = "false";
-        candidateButton.textContent = candidate.name;
+        candidateButton.ariaControls = `candidateCollapse${index}`;
+        candidateButton.textContent = `${nombre} ${apellido}`;
 
         const candidateCollapse = document.createElement("div");
+        candidateCollapse.id = `candidateCollapse${index}`;
         candidateCollapse.className = "accordion-collapse collapse";
+        candidateCollapse.ariaLabelledby = `candidateHeading${index}`;
+        candidateCollapse.dataset.bsParent = "#invitationAccordion";
 
         const candidateBody = document.createElement("div");
         candidateBody.className = "accordion-body";
-
-        // Checkbox para el candidato
-        const candidateCheckbox = document.createElement("input");
-        candidateCheckbox.type = "checkbox";
-        candidateCheckbox.id = `candidateCheckbox${candidate.id}`;
-        candidateCheckbox.className = "form-check-input me-2";
-
-        // Label para el checkbox
-        const candidateLabel = document.createElement("label");
-        candidateLabel.htmlFor = `candidateCheckbox${candidate.id}`;
-        candidateLabel.className = "form-check-label";
-        candidateLabel.textContent = "Seleccionar";
-
-        // Contenido del acordeón
         candidateBody.innerHTML = `
-        ${candidate.details}
-        <div class="form-check">
-          ${candidateCheckbox.outerHTML}
-          ${candidateLabel.outerHTML}
-        </div>
-      `;
+          <p><strong>Nombre:</strong> ${nombre} ${apellido}</p>
+          <p><strong>Fecha de Nacimiento:</strong> ${formattedFechaNacimiento}</p>
+          <p><strong>Documento:</strong> ${numeroDocumento} (${tipoDocumento})</p>
+          <p><strong>Título:</strong> ${titulo}</p>
+          <p><strong>Cargo:</strong> ${cargo}</p>
+          <p><strong>Estudios:</strong> ${estudios}</p>
+          <p><strong>Institución:</strong> ${institucion}</p>
+          <p><strong>Disciplina:</strong> ${disciplina}</p>
+        `;
 
-        candidateHeader.appendChild(candidateButton);
+        headerDiv.appendChild(candidateCheckbox);
+        headerDiv.appendChild(candidateButton);
+        candidateHeader.appendChild(headerDiv);
         candidateAccordion.appendChild(candidateHeader);
         candidateAccordion.appendChild(candidateCollapse);
         candidateCollapse.appendChild(candidateBody);
 
         candidatesAccordion.appendChild(candidateAccordion);
       });
-    });
+    })
+    .catch((error) => console.error("Error fetching candidates:", error));
 
-  document
-    .getElementById("invitationForm")
-    .addEventListener("submit", async (e) => {
-      e.preventDefault();
+  document.getElementById("invitationForm").addEventListener("submit", (e) => {
+    e.preventDefault();
 
-      const invitationDetails = e.target.querySelector("textarea").value;
-      const invitationDateTime = e.target.querySelector(
-        "#invitationDateTime"
-      ).value;
+    const invitationDetails = e.target.querySelector("textarea").value;
+    const invitationDateTime = e.target.querySelector(
+      "#invitationDateTime"
+    ).value;
 
-      const response = await fetch("/api/invitation", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          reqID,
-          invitationDetails,
-          invitationDateTime,
-        }),
+    fetch("/api/invitation", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        reqID,
+        invitationDetails,
+        invitationDateTime,
+      }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          alert("Invitación enviada exitosamente");
+        } else {
+          throw new Error("Error al enviar la invitación");
+        }
+      })
+      .catch((error) => alert(error.message));
+  });
+}
+
+function getPreseleccionados(reqID) {
+  fetch(`/api/candidates/${reqID}`)
+    .then((response) => response.json())
+    .then((data) => {
+      const candidates = data.invitados; // Asegúrate de que el endpoint devuelva el mismo formato
+
+      const preselectionAccordion = document.getElementById(
+        "preselectionAccordion"
+      );
+
+      candidates.forEach((candidate, index) => {
+        const [
+          usuario,
+          nombre,
+          apellido,
+          fechaNacimiento,
+          numeroDocumento,
+          tipoDocumento,
+          titulo,
+          cargo,
+          estudios,
+          institucion,
+          disciplina,
+        ] = candidate;
+
+        const formattedFechaNacimiento = new Date(
+          fechaNacimiento
+        ).toLocaleDateString("es-ES");
+
+        const candidateAccordion = document.createElement("div");
+        candidateAccordion.className = "accordion-item mb-3";
+
+        const candidateHeader = document.createElement("h2");
+        candidateHeader.className = "accordion-header";
+        candidateHeader.id = `preselectionHeading${index}`;
+
+        const candidateButtonContainer = document.createElement("div");
+        candidateButtonContainer.className = "d-flex align-items-center";
+
+        const candidateCheckbox = document.createElement("input");
+        candidateCheckbox.type = "checkbox";
+        candidateCheckbox.id = `preselectionCheckbox${index}`;
+        candidateCheckbox.className = "form-check-input me-2";
+        candidateCheckbox.value = usuario;
+
+        const candidateButton = document.createElement("button");
+        candidateButton.className = "accordion-button collapsed flex-grow-1";
+        candidateButton.type = "button";
+        candidateButton.dataset.bsToggle = "collapse";
+        candidateButton.dataset.bsTarget = `#preselectionCollapse${index}`;
+        candidateButton.ariaExpanded = "false";
+        candidateButton.ariaControls = `preselectionCollapse${index}`;
+        candidateButton.textContent = `${nombre} ${apellido}`;
+
+        candidateButtonContainer.appendChild(candidateCheckbox);
+        candidateButtonContainer.appendChild(candidateButton);
+
+        const candidateCollapse = document.createElement("div");
+        candidateCollapse.id = `preselectionCollapse${index}`;
+        candidateCollapse.className = "accordion-collapse collapse";
+        candidateCollapse.ariaLabelledby = `preselectionHeading${index}`;
+        candidateCollapse.dataset.bsParent = "#preselectionAccordion";
+
+        const candidateBody = document.createElement("div");
+        candidateBody.className = "accordion-body";
+        candidateBody.innerHTML = `
+          <p><strong>Nombre:</strong> ${nombre} ${apellido}</p>
+          <p><strong>Fecha de Nacimiento:</strong> ${formattedFechaNacimiento}</p>
+          <p><strong>Documento:</strong> ${numeroDocumento} (${tipoDocumento})</p>
+          <p><strong>Título:</strong> ${titulo}</p>
+          <p><strong>Cargo:</strong> ${cargo}</p>
+          <p><strong>Estudios:</strong> ${estudios}</p>
+          <p><strong>Institución:</strong> ${institucion}</p>
+          <p><strong>Disciplina:</strong> ${disciplina}</p>
+        `;
+
+        candidateHeader.appendChild(candidateButtonContainer);
+        candidateAccordion.appendChild(candidateHeader);
+        candidateAccordion.appendChild(candidateCollapse);
+        candidateCollapse.appendChild(candidateBody);
+
+        preselectionAccordion.appendChild(candidateAccordion);
       });
-
-      if (response.ok) {
-        alert("Invitación enviada exitosamente");
-      } else {
-        alert("Error al enviar la invitación");
-      }
     });
 }
 
@@ -170,6 +282,7 @@ async function getDetails() {
     .then((data) => {
       const details = data["reque"][0];
       let fase = Number(data["fase"][0]);
+      fase = 5;
       let startDate;
       if (data["fase"][2] === undefined) {
         startDate = new Date(details[0]);
@@ -273,6 +386,7 @@ async function getDetails() {
           accordions[1].setAttribute("tabindex", "-1");
           accordions[1].removeAttribute("data-bs-toggle");
           setGreenBackground(2);
+          getPreseleccionados(reqID);
           break;
 
         default:
