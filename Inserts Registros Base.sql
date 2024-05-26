@@ -294,7 +294,9 @@ INSERT INTO Requerimiento VALUES (4, 'E0002', 'E0004', CURRENT_TIMESTAMP, 150000
 INSERT INTO Requerimiento VALUES (5, 'E0001', 'E0003', CURRENT_TIMESTAMP, 130000, 90000, 'Profesional Senior - Seguridad Informatica', 'Ingenieria en Seguridad Informatica', 1);
 
 --Insertar Sesion
-INSERT INTO Sesion VALUEs ('ana.gomez@example.com', 'E0001', '123');
+INSERT INTO Sesion VALUES ('ana.gomez@example.com', 'E0001', '123');
+INSERT INTO Sesion VALUES ('maria.rodriguez@example.com', 'E0003', '12345');
+INSERT INTO Sesion VALUES ('elena.garcia@example.com', 'E0007', '12345');
 
 
 commit;
@@ -314,4 +316,12 @@ UPDATE PROCESOREQUERIMIENTO
        WHERE CONSECREQUEPROCREQUE = 1 AND
        IDFASEPERFILFASE = '0004';
 	   
-	   
+	   SELECT E.CODEMPLEADO FROM EMPLEADO E JOIN SESION S ON
+      S.CODEMPLEADOFK = E.CODEMPLEADO 
+      WHERE S.USUARIOEMP = 'ana.gomez@example.com' AND S.CONTRASENIA = '123';
+	  
+	  SELECT R.CONSECREQUE FROM REQUERIMIENTO R JOIN EMPLEADO E ON
+          R.EMP_CODEMPLEADO = E.CODEMPLEADO
+          WHERE E.CODEMPLEADO = 'E0003';
+		  
+		

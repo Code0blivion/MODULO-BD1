@@ -23,6 +23,9 @@ const {
   getHeaderReq,
   getEmpleado,
   getCargo,
+  getRequerimientos,
+  getEmpleadoReq,
+  getTiposCargo,
 } = require("./static/scripts/database");
 
 app.use(express.static(path.join(__dirname, "static")));
@@ -64,6 +67,30 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+app.get("/registroEmpleado", async (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "/static/templates/registro_empleado.html")
+  );
+});
+
+app.get("/api/tiposCargo", async (req, res) => {
+  const conexion = await getConexion();
+  cargos = await getTiposCargo(conexion);
+  res.json({ cargos });
+});
+
+app.get("/api/registroEmpleado", async (req, res) => {});
+
+app.get("/api/requerimientos/:id", async (req, res) => {
+  const empID = req.params.id;
+  const conexion = await getConexion();
+  const requerimientos = await getRequerimientos(conexion, empID);
+  const empleado = await getHeaderReq(conexion, empID);
+  const cargo = await getCargo(conexion, empID);
+  cerrarConexion();
+  res.json({ requerimientos, empleado, cargo });
+});
+
 app.get("/lista_requerimientos/:id", (req, res) => {
   res.sendFile(
     path.join(__dirname, "/static/templates/lista_requerimientos.html")
@@ -90,7 +117,8 @@ app.get("/api/req/:id", async (req, res) => {
   const convocatoria = await consultarConvocatoria(conexion, reqID);
   const invitacion = await consultarInvitacion(conexion, reqID);
   const perfil = await consultarPerfil(conexion, reqID);
-  const empleado = await getHeaderReq(conexion, reqID);
+  const empid = await getEmpleadoReq(conexion, reqID);
+  const empleado = await getHeaderReq(conexion, empid[0]);
   cerrarConexion(conexion);
   res.json({ reque, fase, convocatoria, invitacion, perfil, empleado });
 });

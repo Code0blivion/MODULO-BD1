@@ -238,6 +238,14 @@ async function inicializarFase(
       }
 
       if (iter > 2) {
+        if (iter === 6) {
+          empID = choice(await empleadosCargo(conexion, "004"))[0];
+        }
+
+        if (iter === 7) {
+          empID = choice(await empleadosCargo(conexion, "003"))[0];
+        }
+
         result = await conexion.execute(
           `INSERT INTO ProcesoRequerimiento (ConsProceso, idFasePerfilFase, idPerfilProcCan, 
             consecRequeProcReque, codEmpleadoProceReque, fechaInicio)
@@ -452,12 +460,28 @@ async function preseleccionar(
   }
 }
 
-async function getHeaderReq(con, reqID) {
+async function getHeaderReq(con, empID) {
   try {
     const result = await con.execute(
       `
-    SELECT E.NOMEMPLEADO, E.APELLEMPLEADO FROM EMPLEADO E JOIN REQUERIMIENTO R ON
-    R.EMP_CODEMPLEADO = E.CODEMPLEADO AND R.CONSECREQUE = :reqID`,
+    SELECT E.NOMEMPLEADO, E.APELLEMPLEADO FROM EMPLEADO E 
+    WHERE E.CODEMPLEADO = :empID`,
+      { empID }
+    );
+    const rows = result.rows;
+    return rows[0];
+  } catch (err) {
+    console.error("Error reading records:", err);
+    throw err; // Lanzar el error para manejarlo en la llamada a esta función
+  }
+}
+
+async function getEmpleadoReq(con, reqID) {
+  try {
+    const result = await con.execute(
+      `
+        SELECT E.CODEMPLEADO FROM EMPLEADO E JOIN REQUERIMIENTO R ON
+        R.EMP_CODEMPLEADO = E.CODEMPLEADO AND R.CONSECREQUE = :reqID`,
       { reqID }
     );
     const rows = result.rows;
@@ -503,6 +527,127 @@ async function getCargo(con, empID) {
   }
 }
 
+function choice(lista) {
+  var indiceAleatorio = Math.floor(Math.random() * lista.length);
+  var elementoAleatorio = lista[indiceAleatorio];
+  return elementoAleatorio;
+}
+
+async function empleadosCargo(con, cargoID) {
+  try {
+    const result = await con.execute(
+      `
+      SELECT E.CODEMPLEADO FROM EMPLEADO E JOIN CARGO C ON C.CODEMPLEADOCARGO = E.CODEMPLEADO
+      JOIN TIPOCARGO TC ON C.IDTIPOCARGOCARGO = TC.IDTIPOCARGO 
+      WHERE TC.IDTIPOCARGO = :cargoID`,
+      { cargoID }
+    );
+    const rows = result.rows;
+    return rows;
+  } catch (err) {
+    console.error("Error reading records:", err);
+    throw err; // Lanzar el error para manejarlo en la llamada a esta función
+  }
+}
+
+async function getFaseCargo(con, cargoID) {
+  try {
+    const result = await con.execute(
+      `
+      SELECT F.IDFASE FROM FASE F JOIN FASECARGO FC ON FC.IDFASEFASECARGO = F.IDFASE
+      WHERE FC.IDTIPOCARGOFASECAR = :cargoID`,
+      { cargoID }
+    );
+    const rows = result.rows;
+    return rows[0];
+  } catch (err) {
+    console.error("Error reading records:", err);
+    throw err; // Lanzar el error para manejarlo en la llamada a esta función
+  }
+}
+
+async function getRequerimientos(con, empID) {
+  try {
+    let cargo = await getCargo(con, empID);
+
+    let result;
+    switch (cargo[0]) {
+      case "002":
+        result = await con.execute(
+          `
+          SELECT R.CONSECREQUE FROM REQUERIMIENTO R JOIN EMPLEADO E ON
+          R.EMP_CODEMPLEADO = E.CODEMPLEADO
+          WHERE E.CODEMPLEADO = :empID`,
+          { empID }
+        );
+        break;
+
+      case "003":
+        result = await con.execute(
+          `
+            SELECT R.CONSECREQUE FROM REQUERIMIENTO R JOIN PROCESOREQUERIMIENTO PR
+            ON PR.CONSECREQUEPROCREQUE = R.CONSECREQUE
+            WHERE PR.CODEMPLEADOPROCEREQUE = :empID
+            AND PR.IDFASEPERFILFASE = '0007'`,
+          { empID }
+        );
+        break;
+
+      case "004":
+        result = await con.execute(
+          `
+            SELECT R.CONSECREQUE FROM REQUERIMIENTO R JOIN PROCESOREQUERIMIENTO PR
+            ON PR.CONSECREQUEPROCREQUE = R.CONSECREQUE
+            WHERE PR.CODEMPLEADOPROCEREQUE = :empID
+            AND PR.IDFASEPERFILFASE = '0006'`,
+          { empID }
+        );
+        break;
+    }
+
+    const rows = result.rows;
+    return rows;
+  } catch (err) {
+    console.error("Error reading records:", err);
+    throw err; // Lanzar el error para manejarlo en la llamada a esta función
+  }
+}
+
+async function getTiposCargo(con) {
+  try {
+    const result = await con.execute(
+      `SELECT IDTIPOCARGO, DESCTIPOCARGO FROM TIPOCARGO`
+    );
+    return result.rows;
+  } catch (err) {
+    console.error("Error reading records:", err);
+    throw err; // Lanzar el error para manejarlo en la llamada a esta función
+  }
+}
+
+async function registrarEmpleado(
+  con,
+  nombres,
+  apellidos,
+  fechaNac,
+  fechaIng,
+  tipoCargo,
+  correo,
+  contrasena
+) {
+  try {
+    const result = await con.execute(`INSERT INTO EMPLEADO `);
+    console.log(result);
+    await conexion.commit();
+  } catch (err) {
+    console.error("Error reading records:", err);
+    if (conexion) {
+      await conexion.rollback();
+    }
+    throw err; // Lanzar el error para manejarlo en la llamada a esta función
+  }
+}
+
 function cerrarConexion(conexion) {
   if (conexion) {
     conexion.close();
@@ -527,4 +672,7 @@ module.exports = {
   getHeaderReq,
   getEmpleado,
   getCargo,
+  getRequerimientos,
+  getEmpleadoReq,
+  getTiposCargo,
 };
