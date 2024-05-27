@@ -49,20 +49,7 @@ app.post("/api/login", async (req, res) => {
     return res.status(401).json({ error: "Credenciales incorrectas" });
   } else {
     let cargo = await getCargo(conexion, empID[0]);
-
-    let redir;
-    switch (cargo[0]) {
-      case "001":
-        break;
-      case "002":
-        redir = "/lista_requerimientos/" + empID;
-        break;
-      case "003":
-        break;
-      case "004":
-        redir = "/lista_requerimientos/" + empID;
-    }
-    console.log(redir);
+    let redir = defRedir(cargo[0], empID);
     cerrarConexion();
     return res.json({ redir });
   }
@@ -92,7 +79,7 @@ app.post("/api/registroEmpleado", async (req, res) => {
   } = req.body;
 
   const conexion = await getConexion();
-  await registrarEmpleado(
+  const empID = await registrarEmpleado(
     conexion,
     firstName,
     lastName,
@@ -103,6 +90,8 @@ app.post("/api/registroEmpleado", async (req, res) => {
     password
   );
   cerrarConexion();
+  let redir = defRedir(tipoCargo, empID);
+  res.json({ redir });
 });
 
 app.get("/api/requerimientos/:id", async (req, res) => {
@@ -236,3 +225,19 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
+
+function defRedir(cargo, empID) {
+  let redir = "";
+  switch (cargo) {
+    case "001":
+      break;
+    case "002":
+      redir = "/lista_requerimientos/" + empID;
+      break;
+    case "003":
+      break;
+    case "004":
+      redir = "/lista_requerimientos/" + empID;
+  }
+  return redir;
+}

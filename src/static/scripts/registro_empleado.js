@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (response.ok) {
         const responseData = await response.json();
-        const redirUrl = responseData.redirectUrl || "/";
+        const redirUrl = responseData.redir || "/";
 
         const successModal = new bootstrap.Modal(
           document.getElementById("successModal")

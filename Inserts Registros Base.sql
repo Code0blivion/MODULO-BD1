@@ -307,21 +307,19 @@ select ConsProceso ID, idFasePerfilFase Fase,
 idPerfilProcCan Perfil, consecRequeProcReque Req, codEmpleadoProceReque Emp, 
 fechaInicio Fecha from procesoRequerimiento;
 
-
+--Insertar candidatos en la convocatoria
 insert into ProcesoCandidato values('0003','0001', 1, 3, 'user01', sysdate, 'sfds', 'sdfsd');
+
+--Actualizar ProcesoRequerimiento en una fase concreta
 
 UPDATE PROCESOREQUERIMIENTO
        SET INVITACION = NULL,
        fechaFin = NULL
        WHERE CONSECREQUEPROCREQUE = 1 AND
        IDFASEPERFILFASE = '0004';
-	   
-	   SELECT E.CODEMPLEADO FROM EMPLEADO E JOIN SESION S ON
-      S.CODEMPLEADOFK = E.CODEMPLEADO 
-      WHERE S.USUARIOEMP = 'ana.gomez@example.com' AND S.CONTRASENIA = '123';
-	  
-	  SELECT R.CONSECREQUE FROM REQUERIMIENTO R JOIN EMPLEADO E ON
-          R.EMP_CODEMPLEADO = E.CODEMPLEADO
-          WHERE E.CODEMPLEADO = 'E0003';
-		  
+
+--Eliminar empleados
+delete sesion where codEmpleadoFK = 'E0011';
+delete Cargo where codEmpleadoCargo = 'E0011';
+delete empleado where codEmpleado = 'E0011';
 		
