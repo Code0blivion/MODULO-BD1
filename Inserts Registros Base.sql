@@ -164,15 +164,15 @@ insert into PerfilFase values('0008','0010');
 
 
 --Insertar Pregunta
-insert into Pregunta values('0002', '0001', '0001', 'Pregunta 1');
+insert into Pregunta values('0001', '0001', '0001', 'Pregunta 1');
 insert into Pregunta values('0002', '0002', '0004', 'Pregunta 2');
-insert into Pregunta values('0002', '0003', '0003', 'Pregunta 3');
+insert into Pregunta values('0003', '0003', '0003', 'Pregunta 3');
 
 
 --Insertar Respuesta
-insert into Respuesta values('0002', '0001', '0001', 'Respuesta 1');
+insert into Respuesta values('0001', '0001', '0001', 'Respuesta 1');
 insert into Respuesta values('0002', '0002', '0002', 'F');
-insert into Respuesta values('0002', '0003', '0003', 'Unica 3');
+insert into Respuesta values('0003', '0003', '0003', 'Unica 3');
 
 
 --Insertar ItemPerfil

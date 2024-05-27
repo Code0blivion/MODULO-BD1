@@ -492,6 +492,22 @@ async function getEmpleadoReq(con, reqID) {
   }
 }
 
+async function getEmpleadoResponsable(con, reqID, fase) {
+  try {
+    const result = await con.execute(
+      `
+        SELECT CODEMPLEADOPROCEREQUE FROM PROCESOREQUERIMIENTO 
+        WHERE IDFASEPERFILFASE = :fase AND CONSECREQUEPROCREQUE = :reqID`,
+      { fase, reqID }
+    );
+    const rows = result.rows;
+    return rows[0][0];
+  } catch (err) {
+    console.error("Error reading records:", err);
+    throw err; // Lanzar el error para manejarlo en la llamada a esta función
+  }
+}
+
 async function getEmpleado(con, usuario, contrasena) {
   try {
     const result = await con.execute(
@@ -588,7 +604,7 @@ async function getRequerimientos(con, empID) {
             SELECT R.CONSECREQUE FROM REQUERIMIENTO R JOIN PROCESOREQUERIMIENTO PR
             ON PR.CONSECREQUEPROCREQUE = R.CONSECREQUE
             WHERE PR.CODEMPLEADOPROCEREQUE = :empID
-            AND PR.IDFASEPERFILFASE = '0007'`,
+            AND PR.IDFASEPERFILFASE = '0007' AND PR.FECHAFIN IS NULL`,
           { empID }
         );
         break;
@@ -599,7 +615,7 @@ async function getRequerimientos(con, empID) {
             SELECT R.CONSECREQUE FROM REQUERIMIENTO R JOIN PROCESOREQUERIMIENTO PR
             ON PR.CONSECREQUEPROCREQUE = R.CONSECREQUE
             WHERE PR.CODEMPLEADOPROCEREQUE = :empID
-            AND PR.IDFASEPERFILFASE = '0006'`,
+            AND PR.IDFASEPERFILFASE = '0006' AND PR.FECHAFIN IS NULL`,
           { empID }
         );
         break;
@@ -684,6 +700,162 @@ async function registrarEmpleado(
   }
 }
 
+async function getPruebas(con, reqID) {
+  try {
+    const result = await con.execute(
+      `
+      SELECT 
+        PRU.IDPRUEBA,
+        DIS.DESCDISCIPLINA AS DISCIPLINA,
+        TIP.DESCTIPOPRUEBA AS TIPO_PRUEBA,
+        PRU.DESCPRUEBA,
+        PRU.FECHACREADA,
+        PRE.DESCPREGUNTA AS DESC_PREGUNTA,
+        TIP_PRE.DESCTIPOPREGUNTA AS TIPO_PREGUNTA,
+        RES.RESPUESTA
+      FROM 
+        PRUEBA PRU
+        INNER JOIN DISCIPLINA DIS ON PRU.IDDISCIPLINAPRUEBA = DIS.IDDISCIPLINA
+        INNER JOIN TIPOPRUEBA TIP ON PRU.IDTIPOPRUEBAPRUEBA = TIP.IDTIPOPRUEBA
+        LEFT JOIN PREGUNTA PRE ON PRU.IDPRUEBA = PRE.IDPRUEBAPREGUNTA
+        LEFT JOIN TIPOPREGUNTA TIP_PRE ON PRE.IDTIPOPREGUNTAPREG = TIP_PRE.IDTIPOPREGUNTA
+        LEFT JOIN RESPUESTA RES ON PRE.IDPRUEBAPREGUNTA = RES.IDPRUEBARESP
+                                     AND PRE.CONSEPREGUNTA = RES.CONSEPREGUNTARES
+        INNER JOIN PROCESOREQUERIMIENTO PR ON PR.CONSECREQUEPROCREQUE = :reqID AND
+        PR.IDFASEPERFILFASE = PRU.IDFASEPRUEBA 
+        INNER JOIN PERFILFASE PF ON PF.IDFASEPERFILFASE = PR.IDFASEPERFILFASE 
+        AND PF.IDPERFILPERFILFASE = PR.IDPERFILPROCCAN 
+        INNER JOIN PERFIL P ON P.IDPERFIL = PF.IDPERFILPERFILFASE
+      WHERE
+        PRU.IDFASEPRUEBA = '0006' AND P.IDDISCIPLINAPERFIL = DIS.IDDISCIPLINA
+      ORDER BY 
+        PRU.IDPRUEBA,
+        PRE.CONSEPREGUNTA,
+        RES.CONSEPREGUNTARES
+    `,
+      { reqID }
+    );
+
+    // Convertir el resultado a un formato JSON
+    const rows = result.rows;
+
+    // Inicializar un objeto para almacenar las pruebas
+    const pruebas = {};
+
+    // Iterar sobre las filas del resultado y construir la estructura de datos deseada
+    rows.forEach((row) => {
+      const idPrueba = row[0];
+      if (!pruebas[idPrueba]) {
+        pruebas[idPrueba] = {
+          idPrueba: idPrueba,
+          disciplina: row[1],
+          tipoPrueba: row[2],
+          descPrueba: row[3],
+          fechaCreada: row[4],
+          preguntas: [],
+        };
+      }
+
+      // Agregar la pregunta y sus respuestas
+      if (row[5]) {
+        // Si la pregunta existe, se agrega al array de preguntas
+        const pregunta = {
+          descPregunta: row[5],
+          tipoPregunta: row[6],
+          respuestas: row[7] ? [row[7]] : [], // Agregar la respuesta si existe
+        };
+
+        pruebas[idPrueba].preguntas.push(pregunta);
+      }
+    });
+
+    // Convertir el objeto de pruebas en un array
+    const pruebasArray = Object.values(pruebas);
+
+    return pruebasArray;
+  } catch (err) {
+    console.error("Error reading records:", err);
+    throw err; // Lanzar el error para manejarlo en la llamada a esta función
+  }
+}
+
+async function asignarPrueba(
+  conexion,
+  reqID,
+  currentDate,
+  idPrueba,
+  fechaPrueba
+) {
+  try {
+    let result = await conexion.execute(
+      `UPDATE PROCESOREQUERIMIENTO
+       SET fechaFin = TO_TIMESTAMP(:currentDate, 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"'),
+       IDPRUEBAPROC = :idPrueba
+       WHERE CONSECREQUEPROCREQUE = :reqID AND
+       IDFASEPERFILFASE = '0006'
+       `,
+      { currentDate, idPrueba, reqID }
+    );
+
+    let profileID = await consultarPerfil(conexion, reqID);
+    profileID = profileID[0];
+    result = await conexion.execute(
+      `SELECT CONSPROCESO FROM PROCESOREQUERIMIENTO
+                                   WHERE IDFASEPERFILFASE = '0006' AND IDPERFILPROCCAN = :profileID
+                                   AND CONSECREQUEPROCREQUE = :reqID`,
+      { profileID, reqID }
+    );
+
+    let consReque = result.rows[0][0];
+
+    result = await conexion.execute(
+      `
+      SELECT C.USUARIO FROM CANDIDATO C JOIN PROCESOCANDIDATO PC ON PC.USUARIO = C.USUARIO
+      WHERE PC.IDFASEPROCCAN = '0005' AND PC.CONSECREQUEPROCCAN = :reqID AND IDPERFILPROCCAN = :profileID`,
+      { reqID, profileID }
+    );
+
+    console.log(result);
+
+    for (const preseleccionado of result.rows) {
+      let newPress = preseleccionado[0];
+      result = await conexion.execute(
+        `INSERT INTO PROCESOCANDIDATO (idFaseProcCan, idPerfilProcCan,
+                                     consecRequeProcCan, ConsProcesoProcCan, usuario, fechaPresentacion)
+                                     VALUES('0006', :profileID, :reqID, :consReque, :newPress, 
+                                     TO_TIMESTAMP(:fechaPrueba, 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"'))`,
+        { profileID, reqID, consReque, newPress, fechaPrueba }
+      );
+
+      result = await conexion.execute(
+        `SELECT MAX(CONSEPRUEBACANDI) FROM PRUEBACANDIDATO`
+      );
+
+      let maxId = 0;
+      if (result.rows[0][0] !== null) {
+        maxId = parseInt(result.rows[0][0]) + 1;
+      }
+
+      result = await conexion.execute(
+        `INSERT INTO PRUEBACANDIDATO (CONSEPRUEBACANDI, IDFASEPRUEBACAN,
+                                     PRO_IDPERFILPROCCAN, CONSECREQUEPRUCAN, CONSPROCESOPRUEBACAN, IDFASEPROCCAN,
+                                     IDPERFILPROCCAN, CONSECREQUEPROCCAN, CONSPROCESOPROCCAN, USUARIOPRUECAN,
+                                     FECHAPRES, CALIFICACION)
+                                     VALUES(:maxId, '0006',:profileID, :reqID, :consReque, '0006', :profileID, :reqID,
+                                     :consReque, :newPress, TO_TIMESTAMP(:fechaPrueba, 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"'), NULL)`,
+        { maxId, profileID, reqID, consReque, newPress, fechaPrueba }
+      );
+    }
+    await conexion.commit();
+  } catch (err) {
+    console.error("Error reading records:", err);
+    if (conexion) {
+      await conexion.rollback();
+    }
+    throw err; // Lanzar el error para manejarlo en la llamada a esta función
+  }
+}
+
 function cerrarConexion(conexion) {
   if (conexion) {
     conexion.close();
@@ -712,4 +884,7 @@ module.exports = {
   getEmpleadoReq,
   getTiposCargo,
   registrarEmpleado,
+  getPruebas,
+  getEmpleadoResponsable,
+  asignarPrueba,
 };

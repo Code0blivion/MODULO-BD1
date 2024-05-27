@@ -22,8 +22,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const link = document.createElement("a");
         if (data.cargo[0] === "002") {
           link.setAttribute("href", `/req/${requerimiento[0]}`);
+        } else if (data.cargo[0] === "004") {
+          link.setAttribute("href", `/pruebas/${requerimiento[0]}`);
         } else {
-          link.setAttribute("href", `/pruebasReq/${requerimiento[0]}`);
+          link.setAttribute("href", `/resultados/${requerimiento[0]}`);
         }
 
         link.classList.add(

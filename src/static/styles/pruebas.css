@@ -1,0 +1,46 @@
+.form-check-input {
+  margin-left: 10px; /* Ajustar espacio entre los radios y el texto */
+}
+
+.accordion-item {
+  margin-bottom: 50px; /* Aumentar espacio entre los acordeones */
+  max-width: 50%; /* Reducir el ancho de los acordeones */
+  border: 2px solid #000; /* Añadir borde a los acordeones */
+  border-radius: 5px; /* Redondear esquinas de los acordeones */
+  margin-left: auto; /* Centrar acordeones */
+  margin-right: auto; /* Centrar acordeones */
+  padding: 10px; /* Aumentar espacio interno de los acordeones */
+}
+
+.accordion-item:first-child {
+  border-top: 2px solid #000; /* Añadir borde superior al primer acordeón */
+}
+
+.accordion-collapse {
+  max-height: none; /* Eliminar límite de altura de los acordeones */
+}
+
+.accordion-body {
+  padding: 20px; /* Aumentar espacio interno de los acordeones */
+  text-align: center; /* Centrar input de fecha */
+}
+
+.accordion-button {
+  justify-content: flex-start; /* Alinear texto de los botones a la izquierda */
+  font-size: 1.2rem; /* Aumentar tamaño de fuente de los botones de acordeón */
+}
+
+.btn-asignar {
+  width: auto; /* Ajustar ancho del botón de asignar pruebas automáticamente */
+  margin-top: 30px; /* Aumentar espacio entre botón de asignar pruebas y acordeones */
+  font-size: 1.2rem; /* Aumentar tamaño de fuente del botón de asignar pruebas */
+  display: block; /* Centrar botón de asignar perfil */
+  margin-left: auto; /* Centrar botón de asignar perfil */
+  margin-right: auto; /* Centrar botón de asignar perfil */
+}
+
+.form-control[type="datetime-local"] {
+  width: 50%; /* Reducir ancho de los input de fecha */
+  margin-left: auto; /* Centrar input de fecha */
+  margin-right: auto; /* Centrar input de fecha */
+}

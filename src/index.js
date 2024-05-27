@@ -27,6 +27,9 @@ const {
   getEmpleadoReq,
   getTiposCargo,
   registrarEmpleado,
+  getPruebas,
+  getEmpleadoResponsable,
+  asignarPrueba,
 } = require("./static/scripts/database");
 
 app.use(express.static(path.join(__dirname, "static")));
@@ -65,6 +68,20 @@ app.get("/api/tiposCargo", async (req, res) => {
   const conexion = await getConexion();
   cargos = await getTiposCargo(conexion);
   res.json({ cargos });
+});
+
+app.get("/pruebas/:id", async (req, res) => {
+  res.sendFile(path.join(__dirname, "/static/templates/pruebas.html"));
+});
+
+app.get("/api/pruebas/:id", async (req, res) => {
+  const reqID = req.params.id;
+  const conexion = await getConexion();
+  const pruebas = await getPruebas(conexion, reqID);
+  const empid = await getEmpleadoResponsable(conexion, reqID, "0006");
+  const empleado = await getHeaderReq(conexion, empid);
+  cerrarConexion();
+  res.json({ pruebas, empleado });
 });
 
 app.post("/api/registroEmpleado", async (req, res) => {
@@ -113,12 +130,6 @@ app.get("/lista_requerimientos/:id", (req, res) => {
 app.get("/req/:id", (req, res) => {
   res.sendFile(
     path.join(__dirname, "/static/templates/detalle_requerimiento.html")
-  );
-});
-
-app.get("/req2", (req, res) => {
-  res.sendFile(
-    path.join(__dirname, "/static/templates/detalle_requerimiento2.html")
   );
 });
 
@@ -224,6 +235,14 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
+});
+
+app.post("/api/pruebas/:id", async (req, res) => {
+  const { selectedPruebaId, fecha, currentDate, id } = req.body;
+  let conexion = await getConexion();
+  await asignarPrueba(conexion, id, currentDate, selectedPruebaId, fecha);
+  cerrarConexion(conexion);
+  return res.status(200).send("Perfil Asignado Correctamente");
 });
 
 function defRedir(cargo, empID) {
