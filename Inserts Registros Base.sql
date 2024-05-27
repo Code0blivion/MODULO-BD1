@@ -164,15 +164,15 @@ insert into PerfilFase values('0008','0010');
 
 
 --Insertar Pregunta
-insert into Pregunta values('0001', '0001', '0001', 'Pregunta 1');
+insert into Pregunta values('0002', '0001', '0001', 'Pregunta 1');
 insert into Pregunta values('0002', '0002', '0004', 'Pregunta 2');
-insert into Pregunta values('0003', '0003', '0003', 'Pregunta 3');
+insert into Pregunta values('0002', '0003', '0003', 'Pregunta 3');
 
 
 --Insertar Respuesta
-insert into Respuesta values('0001', '0001', '0001', 'Respuesta 1');
+insert into Respuesta values('0002', '0001', '0001', 'Respuesta 1');
 insert into Respuesta values('0002', '0002', '0002', 'F');
-insert into Respuesta values('0003', '0003', '0003', 'Unica 3');
+insert into Respuesta values('0002', '0003', '0003', 'Unica 3');
 
 
 --Insertar ItemPerfil
@@ -298,19 +298,25 @@ INSERT INTO Sesion VALUES ('ana.gomez@example.com', 'E0001', '123'); --Analista 
 INSERT INTO Sesion VALUES ('maria.rodriguez@example.com', 'E0003', '12345'); --Analista General
 INSERT INTO Sesion VALUES ('carlos.perez@example.com', 'E0004', '12345'); --Analista General
 INSERT INTO Sesion VALUES ('elena.garcia@example.com', 'E0007', '12345'); --Analista Conocimiento
+INSERT INTO Sesion VALUES ('sofia.lopez@example.com', 'E0005', '12345'); --Analista Conocimiento
 
 
 
 commit;
 
-
---Verificar ProcesoRequerimiento
-select ConsProceso ID, idFasePerfilFase Fase, 
-idPerfilProcCan Perfil, consecRequeProcReque Req, codEmpleadoProceReque Emp, 
-fechaInicio Fecha from procesoRequerimiento;
-
 --Insertar candidatos en la convocatoria
-insert into ProcesoCandidato values('0003','0001', 1, 3, 'user01', sysdate, 'sfds', 'sdfsd');
+insert into ProcesoCandidato values('0003','0001', 1, 3, 'user01', sysdate, 'sfds', 'Aceptado');
+insert into ProcesoCandidato values('0003','0001', 1, 3, 'user05', sysdate, 'sfds', 'Aceptado');
+
+--Actualizar candidatos en las invitaciones
+
+UPDATE PROCESOCANDIDATO
+	SET OBSERVACIONES = 'Aceptado'
+	WHERE IDFASEPROCCAN = '0004' AND
+	IDPERFILPROCCAN = '0001' AND
+	CONSECREQUEPROCCAN = '1' AND
+	(USUARIO = 'user02' OR USUARIO = 'user04');
+
 
 --Actualizar ProcesoRequerimiento en una fase concreta
 

@@ -171,6 +171,10 @@ app.get("/lista_requerimientos/:id", (req, res) => {
   );
 });
 
+app.get("/resultados/:id", (req, res) => {
+  res.sendFile(path.join(__dirname, "/static/templates/resultados_req.html"));
+});
+
 app.get("/req/:id", (req, res) => {
   res.sendFile(
     path.join(__dirname, "/static/templates/detalle_requerimiento.html")
@@ -299,6 +303,7 @@ function defRedir(cargo, empID) {
       redir = "/lista_requerimientos/" + empID;
       break;
     case "003":
+      redir = "/lista_requerimientos/" + empID;
       break;
     case "004":
       redir = "/lista_requerimientos/" + empID;
