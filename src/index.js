@@ -26,6 +26,7 @@ const {
   getRequerimientos,
   getEmpleadoReq,
   getTiposCargo,
+  registrarEmpleado,
 } = require("./static/scripts/database");
 
 app.use(express.static(path.join(__dirname, "static")));
@@ -79,7 +80,30 @@ app.get("/api/tiposCargo", async (req, res) => {
   res.json({ cargos });
 });
 
-app.get("/api/registroEmpleado", async (req, res) => {});
+app.post("/api/registroEmpleado", async (req, res) => {
+  const {
+    firstName,
+    lastName,
+    birthdate,
+    joindate,
+    tipoCargo,
+    email,
+    password,
+  } = req.body;
+
+  const conexion = await getConexion();
+  await registrarEmpleado(
+    conexion,
+    firstName,
+    lastName,
+    birthdate,
+    joindate,
+    tipoCargo,
+    email,
+    password
+  );
+  cerrarConexion();
+});
 
 app.get("/api/requerimientos/:id", async (req, res) => {
   const empID = req.params.id;

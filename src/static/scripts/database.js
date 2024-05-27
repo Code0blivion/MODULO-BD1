@@ -636,8 +636,36 @@ async function registrarEmpleado(
   contrasena
 ) {
   try {
-    const result = await con.execute(`INSERT INTO EMPLEADO `);
+    let result = await con.execute(`SELECT MAX(CODEMPLEADO) FROM EMPLEADO`);
+
+    console.log(result.rows);
+    let maxId = result.rows[0];
+    let newIdNumber = parseInt(maxId[0].substring(1)) + 1;
+    let newId1 = "E" + newIdNumber.toString().padStart(4, "0");
+
+    result = await con.execute(
+      `INSERT INTO EMPLEADO 
+    (codEmpleado, nomEmpleado, apellEmpleado, fechaNacEm, FechaIngre, fechaEgreso, correo)
+    VALUES(:newId, :nombres, :apellidos, to_date(:fechaNac, 'YYYY-MM-DD'), to_date(:fechaIng, 'YYYY-MM-DD'), NULL,
+    :correo)
+    `,
+      { newId1, nombres, apellidos, fechaNac, fechaIng, correo }
+    );
     console.log(result);
+
+    result = await con.execute(`SELECT MAX(CONSECARGO) FROM CARGO`);
+
+    maxId = result.rows[0];
+    let newId2 = parseInt(maxId[0]) + 1;
+
+    result = await con.execute(
+      `INSERT INTO CARGO 
+    (ConseCargo, idTipoCargoCargo, codEmpleadoCargo, FechaInicioCargo, FechaFinCargo, descCargo )
+    VALUES(:newId2, :tipoCargo, :newId1, to_date(:fechaIng, 'YYYY-MM-DD'), NULL, 'Empleado SELECCION S.A')
+    `,
+      { newId2, tipoCargo, newId1, fechaIng }
+    );
+
     await conexion.commit();
   } catch (err) {
     console.error("Error reading records:", err);
@@ -675,4 +703,5 @@ module.exports = {
   getRequerimientos,
   getEmpleadoReq,
   getTiposCargo,
+  registrarEmpleado,
 };
