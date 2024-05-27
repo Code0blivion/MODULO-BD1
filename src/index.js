@@ -30,6 +30,8 @@ const {
   getPruebas,
   getEmpleadoResponsable,
   asignarPrueba,
+  insertarRequerimiento,
+  obtenerAnalistasGenerales,
 } = require("./static/scripts/database");
 
 app.use(express.static(path.join(__dirname, "static")));
@@ -68,6 +70,48 @@ app.get("/api/tiposCargo", async (req, res) => {
   const conexion = await getConexion();
   cargos = await getTiposCargo(conexion);
   res.json({ cargos });
+});
+
+app.get("/requerimiento/:id", (req, res) => {
+  res.sendFile(path.join(__dirname, "/static/templates/requerimiento.html"));
+});
+
+app.get("/api/analistas", async (req, res) => {
+  const conexion = await getConexion();
+  const analistas = await obtenerAnalistasGenerales(conexion);
+  cerrarConexion(conexion);
+  res.json({ analistas });
+});
+
+app.post("/api/requerimiento/", async (req, res) => {
+  const {
+    salarioMin,
+    salarioMax,
+    descFuncion,
+    descCarreras,
+    nVvacantes,
+    codEmpleadoReque,
+    Emp_codEmpleado,
+  } = req.body;
+
+  console.log(req.body);
+
+  const fechaReque = new Date().toISOString();
+
+  const reqData = {
+    salarioMin,
+    salarioMax,
+    descFuncion,
+    descCarreras,
+    nVvacantes,
+    codEmpleadoReque,
+    Emp_codEmpleado,
+    fechaReque,
+  };
+  const conexion = await getConexion();
+  await insertarRequerimiento(conexion, reqData);
+  cerrarConexion();
+  return res.status(200).send("Requerimiento Creado Correctamente");
 });
 
 app.get("/pruebas/:id", async (req, res) => {
@@ -249,6 +293,7 @@ function defRedir(cargo, empID) {
   let redir = "";
   switch (cargo) {
     case "001":
+      redir = "/requerimiento/" + empID;
       break;
     case "002":
       redir = "/lista_requerimientos/" + empID;
@@ -257,6 +302,7 @@ function defRedir(cargo, empID) {
       break;
     case "004":
       redir = "/lista_requerimientos/" + empID;
+      break;
   }
   return redir;
 }

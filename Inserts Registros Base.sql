@@ -294,9 +294,11 @@ INSERT INTO Requerimiento VALUES (4, 'E0002', 'E0004', CURRENT_TIMESTAMP, 150000
 INSERT INTO Requerimiento VALUES (5, 'E0001', 'E0003', CURRENT_TIMESTAMP, 130000, 90000, 'Profesional Senior - Seguridad Informatica', 'Ingenieria en Seguridad Informatica', 1);
 
 --Insertar Sesion
-INSERT INTO Sesion VALUES ('ana.gomez@example.com', 'E0001', '123');
-INSERT INTO Sesion VALUES ('maria.rodriguez@example.com', 'E0003', '12345');
-INSERT INTO Sesion VALUES ('elena.garcia@example.com', 'E0007', '12345');
+INSERT INTO Sesion VALUES ('ana.gomez@example.com', 'E0001', '123'); --Analista Cliente
+INSERT INTO Sesion VALUES ('maria.rodriguez@example.com', 'E0003', '12345'); --Analista General
+INSERT INTO Sesion VALUES ('carlos.perez@example.com', 'E0004', '12345'); --Analista General
+INSERT INTO Sesion VALUES ('elena.garcia@example.com', 'E0007', '12345'); --Analista Conocimiento
+
 
 
 commit;
@@ -316,10 +318,11 @@ UPDATE PROCESOREQUERIMIENTO
        SET INVITACION = NULL,
        fechaFin = NULL
        WHERE CONSECREQUEPROCREQUE = 1 AND
-       IDFASEPERFILFASE = '0004';
+       IDFASEPERFILFASE = '0006';
 
 --Eliminar empleados
 delete sesion where codEmpleadoFK = 'E0011';
 delete Cargo where codEmpleadoCargo = 'E0011';
 delete empleado where codEmpleado = 'E0011';
-		
+
+

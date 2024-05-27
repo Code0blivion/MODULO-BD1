@@ -856,6 +856,76 @@ async function asignarPrueba(
   }
 }
 
+async function insertarRequerimiento(con, reqData) {
+  const {
+    salarioMin,
+    salarioMax,
+    descFuncion,
+    descCarreras,
+    nVvacantes,
+    codEmpleadoReque,
+    Emp_codEmpleado,
+    fechaReque,
+  } = reqData;
+
+  try {
+    // Generar el consecutivo del requerimiento
+    const resultConsecutivo = await con.execute(
+      `SELECT NVL(MAX(CONSECREQUE), 0) + 1 AS NEW_CONSECREQUE FROM REQUERIMIENTO`
+    );
+    const newConsecReque = resultConsecutivo.rows[0][0];
+
+    // Insertar el requerimiento
+    const sql = `INSERT INTO REQUERIMIENTO (
+      CONSECREQUE, SALARIOMAX, SALARIOMIN, DESCFUNCION, DESCCARRERAS, 
+      NVVACANTES, EMP_CODEMPLEADO, FECHAREQUE, CODEMPLEADOREQUE
+    ) VALUES (
+      :consecReque, :salarioMax, :salarioMin, :descFuncion, :descCarreras, 
+      :nVvacantes, :Emp_codEmpleado, TO_TIMESTAMP(:fechaReque, 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"'), 
+      :codEmpleadoReque
+    )`;
+
+    const binds = {
+      consecReque: newConsecReque,
+      salarioMax,
+      salarioMin,
+      descFuncion,
+      descCarreras,
+      nVvacantes,
+      codEmpleadoReque,
+      Emp_codEmpleado,
+      fechaReque,
+    };
+
+    // Ejecutar la inserción
+    const result = await con.execute(sql, binds);
+    await con.commit();
+    console.log("Requerimiento insertado:", result);
+  } catch (err) {
+    console.error("Error al insertar el requerimiento:", err);
+    if (con) {
+      await con.rollback();
+    }
+    throw err;
+  }
+}
+
+async function obtenerAnalistasGenerales(con) {
+  try {
+    const result = await con.execute(
+      `SELECT E.codEmpleado, E.nomEmpleado || ' ' || E.apellEmpleado as nombre
+       FROM empleado E, cargo C, tipoCargo T
+       WHERE E.codEmpleado = C.codEmpleadoCargo
+         AND C.idTipoCargoCargo = T.idTipoCargo
+         AND upper(T.descTipoCargo) = 'ANALISTA GENERAL'`
+    );
+    return result.rows;
+  } catch (err) {
+    console.error("Error al obtener analistas generales:", err);
+    throw err;
+  }
+}
+
 function cerrarConexion(conexion) {
   if (conexion) {
     conexion.close();
@@ -887,4 +957,6 @@ module.exports = {
   getPruebas,
   getEmpleadoResponsable,
   asignarPrueba,
+  insertarRequerimiento,
+  obtenerAnalistasGenerales,
 };
